@@ -1,0 +1,13 @@
+{
+    "makefile.preConfigureScript": "${workspaceFolder}/.vscode/export.sh",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/muaddib/Documents/projects/nixie/v1/code",
+            "binaryPath": "/home/muaddib/Documents/projects/nixie/v1/code/app.elf",
+            "binaryArgs": []
+        }
+    ],
+    "files.associations": {
+        "stdint.h": "c"
+    }
+}
