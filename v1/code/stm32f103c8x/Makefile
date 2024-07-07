@@ -1,5 +1,5 @@
 TARGET = nixie
-BUILD_DIR = ./build
+BUILD_DIR = ../build
 STM32_STD_PERIPH_LIB = path_to_std_periph_lib
 
 CC = arm-none-eabi-gcc
@@ -8,18 +8,18 @@ OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
 CFLAGS = -Wall -g -std=gnu11 -mcpu=cortex-m3 -mthumb -mno-thumb-interwork -mfpu=vfp -msoft-float -mfix-cortex-m3-ldrd
-LDFLAGS = -TSTM32F103C8TX_FLASH.ld
+LDFLAGS = -T../STM32F103C8TX_FLASH.ld
 
-HDRS += ./src
+HDRS += -I../src -I../
 
-SRCS += ./src/startup.c 
-SRCS += ./src/main.c 
-SRCS += ./src/test.c 
-SRCS += ./src/isr_handle.c 
-SRCS += ./src/sys_init.c 
+SRCS += ../src/startup.c 
+SRCS += ../src/main.c 
+SRCS += ../src/test.c 
+SRCS += ../src/isr_handle.c 
+SRCS += ../src/sys_init.c 
 
 
-# ASMS = ./src/startup.s
+# ASMS = ../src/startup.s
 
 OBJS := $(patsubst %.c,%.o,$(SRCS))
 ASMOBJS := $(patsubst %.s,%.o,$(ASMS))
@@ -38,7 +38,7 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(ASMOBJS)
 	$(LD) $(LDFLAGS) -o $@ $(foreach obj, $^,$(BUILD_DIR)/$(notdir $(obj)))
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $(BUILD_DIR)/$(notdir $@)
+	$(CC) $(CFLAGS) $(HDRS) -c $< -o $(BUILD_DIR)/$(notdir $@)
 
 %.o: %.s
 	$(CC) $(CFLAGS) -c $< -o $(BUILD_DIR)/$(notdir $@)
