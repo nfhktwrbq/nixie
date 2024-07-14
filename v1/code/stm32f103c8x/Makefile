@@ -7,8 +7,8 @@ LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
-CFLAGS = -Wall -g -std=gnu11 -mcpu=cortex-m3 -mthumb -mno-thumb-interwork -mfpu=vfp -msoft-float -mfix-cortex-m3-ldrd
-LDFLAGS = -T../STM32F103C8TX_FLASH.ld
+CFLAGS = -Wall -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
+LDFLAGS = -T../STM32F103X6_FLASH.ld --static -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
 
 HDRS += -I../src -I../
 
@@ -35,7 +35,7 @@ $(BUILD_DIR)/$(TARGET).lst: $(BUILD_DIR)/$(TARGET).elf
 	$(OBJDUMP) -D $< > $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(ASMOBJS)
-	$(LD) $(LDFLAGS) -o $@ $(foreach obj, $^,$(BUILD_DIR)/$(notdir $(obj)))
+		$(CC) $(CFLAGS) $(foreach obj, $^,$(BUILD_DIR)/$(notdir $(obj))) -o $@  $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(HDRS) -c $< -o $(BUILD_DIR)/$(notdir $@)

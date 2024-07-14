@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 #include "sys_init.h"
 #include "stm32f103xb.h"
 
@@ -78,4 +79,21 @@ void SystemInit(void)
         i++;
         toggle_gpio_pc13();
     }
+
+    volatile uint8_t * p8 =   (volatile uint8_t *)(0x8000000);
+    memset((void *)p8, 0, 45);
+}
+
+void _close(void)
+{
+}
+void _lseek(void)
+{
+
+}
+void _read(void)
+{
+}
+void _write(void)
+{
 }
