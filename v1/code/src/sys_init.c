@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "sys_init.h"
-#include "stm32f103xb.h"
+#include "stm_defines.h"
 
 
 // Register definitions for STM32F103C8T6

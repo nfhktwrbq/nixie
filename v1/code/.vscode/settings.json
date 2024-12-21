@@ -9,6 +9,8 @@
     ],
     "files.associations": {
         "stdint.h": "c",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "stm32f103xb.h": "c",
+        "sys_init.h": "c"
     }
 }
