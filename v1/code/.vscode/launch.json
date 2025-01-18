@@ -2,16 +2,50 @@
 	"version": "0.2.0",
 	"configurations": [	
 		{
-			"name": "openocd",
+			"name": "openocd_c6x",
 			"type": "cortex-debug",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
 			"gdbPath": "arm-none-eabi-gdb",
 			"servertype": "openocd",
-			"executable": "./build/nixie.elf",
+			"executable": "./stm32f103c6x/nixie.elf",
 			"svdFile": "STM32F103.svd",
 			"runToEntryPoint": "Reset_Handler",
 			"showDevDebugOutput": "none",
+			"configFiles": [
+				"/usr/share/openocd/scripts/interface/stlink.cfg",
+				"/usr/share/openocd/scripts/target/stm32f1x.cfg"
+			],
+		},
+		{
+			"name": "openocd_c8x",
+			"type": "cortex-debug",
+			"request": "launch",
+			"cwd": "${workspaceRoot}",
+			"gdbPath": "arm-none-eabi-gdb",
+			"servertype": "openocd",
+			"executable": "./stm32f103c8x/nixie.elf",
+			"svdFile": "STM32F103.svd",
+			"runToEntryPoint": "Reset_Handler",
+			"showDevDebugOutput": "none",
+			"configFiles": [
+				"/usr/share/openocd/scripts/interface/stlink.cfg",
+				"/usr/share/openocd/scripts/target/stm32f1x.cfg"
+			],
+		},
+		{
+			"name": "china_c8x",
+			"type": "cortex-debug",
+			"request": "launch",
+			"cwd": "${workspaceRoot}",
+			"gdbPath": "arm-none-eabi-gdb",
+			"servertype": "openocd",
+			"executable": "./stm32f103c8x/nixie.elf",
+			"svdFile": "STM32F103.svd",
+			"runToEntryPoint": "Reset_Handler",
+			"showDevDebugOutput": "none",
+			"openOCDLaunchCommands": ["set CPUTAPID 0x2ba01477"],
+			"openOCDPreConfigLaunchCommands": ["set CPUTAPID 0x2ba01477"],
 			"configFiles": [
 				"/usr/share/openocd/scripts/interface/stlink.cfg",
 				"/usr/share/openocd/scripts/target/stm32f1x.cfg"

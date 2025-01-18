@@ -28,6 +28,7 @@ CURRENT_DIR = $(shell pwd)
 
 $(info CWD is $(CURRENT_DIR))
 $(info OBJS is $(OBJS))
+$(info PATH is $(PATH))
 
 
 all: $(BUILD_DIR)/$(TARGET).bin $(BUILD_DIR)/$(TARGET).lst

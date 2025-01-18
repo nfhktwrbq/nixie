@@ -1,5 +1,18 @@
 {
-    "makefile.preConfigureScript": "${workspaceFolder}/.vscode/export.sh",
+    "makefile.makeDirectory": "",
+    "makefile.configurations": [
+        {
+            "name": "stm32f103c8x",            
+            "makefilePath": "${workspaceFolder}/stm32f103c8x/Makefile",
+            "makeDirectory": "${workspaceFolder}/stm32f103c8x"
+        },
+        {
+            "name": "stm32f103c6x",            
+            "makefilePath": "${workspaceFolder}/stm32f103c6x/Makefile",
+            "makeDirectory": "${workspaceFolder}/stm32f103c6x"
+        },
+    ],
+    
     "makefile.launchConfigurations": [
         {
             "cwd": "/home/muaddib/Documents/projects/nixie/v1/code",
@@ -7,10 +20,21 @@
             "binaryArgs": []
         }
     ],
+
+    "makefile.dryrunSwitches": [
+        "--always-make",
+        "--keep-going",
+        "--print-directory"
+    ],
+    "makefile.buildLog": "",
+    "makefile.loggingLevel": "Normal",
+    "makefile.preConfigureScript": "${workspaceFolder}/.vscode/export.sh",
     "files.associations": {
         "stdint.h": "c",
         "cstdint": "cpp",
         "stm32f103xb.h": "c",
-        "sys_init.h": "c"
-    }
+        "sys_init.h": "c",
+        "stm_defines.h": "c",
+        "stm32f103x6.h": "c"
+    },
 }
