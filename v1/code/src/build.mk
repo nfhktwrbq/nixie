@@ -1,11 +1,14 @@
 TARGET = nixie
 BUILD_DIR = ./
 STM32_STD_PERIPH_LIB = path_to_std_periph_lib
+SIDE_TARGETS = $(TARGET).size
+TARGET_PATH = $(BUILD_DIR)/$(TARGET)
 
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
+SIZE = arm-none-eabi-size
 
 CFLAGS = -Wall -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
 LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
@@ -31,15 +34,15 @@ $(info OBJS is $(OBJS))
 $(info PATH is $(PATH))
 
 
-all: $(BUILD_DIR)/$(TARGET).bin $(BUILD_DIR)/$(TARGET).lst
+all: $(TARGET_PATH).bin $(TARGET_PATH).lst $(SIDE_TARGETS)
 
-$(BUILD_DIR)/$(TARGET).bin: $(BUILD_DIR)/$(TARGET).elf
+$(TARGET_PATH).bin: $(TARGET_PATH).elf
 	$(OBJCOPY) -O binary $< $@
 
-$(BUILD_DIR)/$(TARGET).lst: $(BUILD_DIR)/$(TARGET).elf
+$(TARGET_PATH).lst: $(TARGET_PATH).elf
 	$(OBJDUMP) -D $< > $@
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(ASMOBJS)
+$(TARGET_PATH).elf: $(OBJS) $(ASMOBJS)
 	$(CC) $(CFLAGS) $(foreach obj, $^,$(BUILD_DIR)/$(notdir $(obj))) -o $@  $(LDFLAGS)
 
 %.o: %.c
@@ -47,6 +50,9 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(ASMOBJS)
 
 %.o: %.s
 	$(CC) $(CFLAGS) -c $< -o $(BUILD_DIR)/$(notdir $@) $(PREPROCESSOR_DEFINES)
+
+%.size: $(TARGET_PATH).elf
+	$(SIZE) -x $< 
 
 clean:
 	rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.elf $(BUILD_DIR)/*.bin $(BUILD_DIR)/*.lst

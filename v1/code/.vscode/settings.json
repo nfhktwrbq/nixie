@@ -28,7 +28,6 @@
     ],
     "makefile.buildLog": "",
     "makefile.loggingLevel": "Normal",
-    "makefile.preConfigureScript": "${workspaceFolder}/.vscode/export.sh",
     "files.associations": {
         "stdint.h": "c",
         "cstdint": "cpp",
