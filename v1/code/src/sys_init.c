@@ -18,8 +18,8 @@ void init_gpio_pc13(void)
     RCC_APB2ENR |= (1 << 4);
 
     // Configure PC13 as output push-pull
-    GPIOC_CRH &= ~(0xF << 20);
-    GPIOC_CRH |= (0x3 << 20);
+    GPIOC_CRH &= ~(0xFu << 20);
+    GPIOC_CRH |= (0x3u << 20);
 }
 
 void toggle_gpio_pc13(void)
@@ -79,9 +79,6 @@ void SystemInit(void)
         i++;
         toggle_gpio_pc13();
     }
-
-    volatile uint8_t * p8 =   (volatile uint8_t *)(0x8000000);
-    memset((void *)p8, 0, 45);
 }
 
 void _close(void)

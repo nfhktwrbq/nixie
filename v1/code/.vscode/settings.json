@@ -24,7 +24,12 @@
     "makefile.dryrunSwitches": [
         "--always-make",
         "--keep-going",
-        "--print-directory"
+        "--print-directory",
+        "--dry-run",
+        "--assume-old=Makefile",
+        "Makefile",
+        "all",
+        "AM_MAKEFLAGS=--assume-old=Makefile Makefile"
     ],
     "makefile.buildLog": "",
     "makefile.loggingLevel": "Normal",
@@ -34,6 +39,7 @@
         "stm32f103xb.h": "c",
         "sys_init.h": "c",
         "stm_defines.h": "c",
-        "stm32f103x6.h": "c"
+        "stm32f103x6.h": "c",
+        "i2c.h": "c"
     },
 }

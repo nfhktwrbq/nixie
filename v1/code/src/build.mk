@@ -10,7 +10,29 @@ OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 SIZE = arm-none-eabi-size
 
-CFLAGS = -Wall -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
+WARNINGS += -Wall   
+WARNINGS += -Wextra -Waggregate-return -Wcast-align
+WARNINGS += -Wcast-qual  -Wchar-subscripts  -Wcomment -Wconversion 
+WARNINGS += -Wdisabled-optimization 
+WARNINGS += -Werror -Wfloat-equal  -Wformat  -Wformat=2 
+WARNINGS += -Wformat-nonliteral -Wformat-security  
+WARNINGS += -Wformat-y2k 
+WARNINGS += -Wimplicit  -Wimport  -Winit-self  -Winline 
+WARNINGS += -Winvalid-pch   
+WARNINGS += -Wunsafe-loop-optimizations  -Wlong-long -Wmissing-braces 
+WARNINGS += -Wmissing-field-initializers -Wmissing-format-attribute   
+WARNINGS += -Wmissing-include-dirs  
+WARNINGS += -Wpacked  -Wpadded -Wparentheses  -Wpointer-arith 
+WARNINGS += -Wredundant-decls -Wreturn-type 
+WARNINGS += -Wsequence-point  -Wshadow -Wsign-compare  -Wstack-protector 
+WARNINGS += -Wstrict-aliasing -Wstrict-aliasing=2 -Wswitch  -Wswitch-default 
+WARNINGS += -Wswitch-enum -Wtrigraphs  -Wuninitialized 
+WARNINGS += -Wunknown-pragmas  -Wunreachable-code -Wunused 
+WARNINGS += -Wunused-function  -Wunused-label  -Wunused-parameter 
+WARNINGS += -Wunused-value  -Wunused-variable  -Wvariadic-macros 
+WARNINGS += -Wvolatile-register-var  -Wwrite-strings
+
+CFLAGS = $(WARNINGS) -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
 LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
@@ -21,6 +43,7 @@ SRCS += ../src/main.c
 SRCS += ../src/test.c 
 SRCS += ../src/isr_handle.c 
 SRCS += ../src/sys_init.c 
+SRCS += ../src/i2c.c 
 
 # ASMS = ../src/startup.s
 
