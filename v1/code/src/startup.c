@@ -54,6 +54,7 @@ __attribute__((used, section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
     (void (*)(void))(&_estack),
     Reset_Handler,
+    NMI_Handler,
     HardFault_Handler,
     MemManage_Handler,
     BusFault_Handler,

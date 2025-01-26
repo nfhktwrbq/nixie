@@ -40,6 +40,7 @@
         "sys_init.h": "c",
         "stm_defines.h": "c",
         "stm32f103x6.h": "c",
-        "i2c.h": "c"
+        "i2c.h": "c",
+        "i2c_stm.h": "c"
     },
 }

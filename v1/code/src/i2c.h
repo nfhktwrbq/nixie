@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 /*Инициализация и установка частоты SCL сигнала*/
-uint8_t i2c_master_init(uint16_t fr);
+uint8_t i2c_master_init(uint16_t freq);
 
 /*Передать данные*/
 void i2c_send_data(uint8_t *msg, uint8_t msgSize);
@@ -50,5 +50,9 @@ uint8_t i2c_get_data(uint8_t *msg, uint8_t msgSize);
 
 /*Взять статус I2C модуля*/
 uint8_t i2c_get_state(void);
+
+/**/
+void i2c_event_handler(void);
+void i2c_error_handler(void);
 
 #endif //I2CM_H

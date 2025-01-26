@@ -32,7 +32,7 @@ WARNINGS += -Wunused-function  -Wunused-label  -Wunused-parameter
 WARNINGS += -Wunused-value  -Wunused-variable  -Wvariadic-macros 
 WARNINGS += -Wvolatile-register-var  -Wwrite-strings
 
-CFLAGS = $(WARNINGS) -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
+CFLAGS = $(WARNINGS) -fno-short-enums -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
 LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
@@ -43,7 +43,7 @@ SRCS += ../src/main.c
 SRCS += ../src/test.c 
 SRCS += ../src/isr_handle.c 
 SRCS += ../src/sys_init.c 
-SRCS += ../src/i2c.c 
+SRCS += ../src/i2c_stm.c 
 
 # ASMS = ../src/startup.s
 
