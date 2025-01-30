@@ -21,8 +21,9 @@ WARNINGS += -Wimplicit  -Wimport  -Winit-self  -Winline
 WARNINGS += -Winvalid-pch   
 WARNINGS += -Wunsafe-loop-optimizations  -Wlong-long -Wmissing-braces 
 WARNINGS += -Wmissing-field-initializers -Wmissing-format-attribute   
-WARNINGS += -Wmissing-include-dirs  
-WARNINGS += -Wpacked  -Wpadded -Wparentheses  -Wpointer-arith 
+WARNINGS += -Wmissing-include-dirs
+#WARNINGS += -Wpadded  
+WARNINGS += -Wpacked  -Wparentheses  -Wpointer-arith 
 WARNINGS += -Wredundant-decls -Wreturn-type 
 WARNINGS += -Wsequence-point  -Wshadow -Wsign-compare  -Wstack-protector 
 WARNINGS += -Wstrict-aliasing -Wstrict-aliasing=2 -Wswitch  -Wswitch-default 
@@ -36,7 +37,11 @@ CFLAGS = $(WARNINGS) -fno-short-enums -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-i
 LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
-HDRS += -I../src -I../
+HDRS += -I../src 
+HDRS += -I../
+HDRS += -I../src/thirdparty/free_rtos/
+HDRS += -I../src/thirdparty/free_rtos/include
+HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
 
 SRCS += ../src/startup.c 
 SRCS += ../src/main.c 
@@ -44,6 +49,12 @@ SRCS += ../src/test.c
 SRCS += ../src/isr_handle.c 
 SRCS += ../src/sys_init.c 
 SRCS += ../src/i2c_stm.c 
+SRCS += ../src/thirdparty/free_rtos/portable/GCC/ARM_CM3/port.c 
+SRCS += ../src/thirdparty/free_rtos/portable/MemMang/heap_4.c 
+SRCS += ../src/thirdparty/free_rtos/list.c 
+SRCS += ../src/thirdparty/free_rtos/queue.c 
+SRCS += ../src/thirdparty/free_rtos/tasks.c 
+SRCS += ../src/thirdparty/free_rtos/timers.c
 
 # ASMS = ../src/startup.s
 

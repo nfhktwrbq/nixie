@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "isr_handle.h"
 #include "i2c_stm.h"
+#include "sys_init.h"
 
 static void default_handler(void)
 {
@@ -41,10 +42,10 @@ void UsageFault_Handler(void)
     default_handler();
 }
 
-void SVC_Handler(void)
-{
-    default_handler();
-}
+// void SVC_Handler(void)
+// {
+//     default_handler();
+// }
 
 void DebugMon_Handler(void)
 {
@@ -52,15 +53,15 @@ void DebugMon_Handler(void)
 }
 
 
-void PendSV_Handler(void)
-{
-    default_handler();
-}
+// void PendSV_Handler(void)
+// {
+//     default_handler();
+// }
 
-void SysTick_Handler(void)
-{
-    default_handler();
-}
+// void SysTick_Handler(void)
+// {
+//     systick_handler();
+// }
 
 void WWDG_IRQHandler(void)
 {

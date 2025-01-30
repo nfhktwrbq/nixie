@@ -5,3 +5,4 @@
 
 void SystemInit(void);
 void uart_send_char(char c);
+void systick_handler(void);
