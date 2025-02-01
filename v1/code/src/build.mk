@@ -10,6 +10,8 @@ OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 SIZE = arm-none-eabi-size
 
+PREPROCESSOR += -DBME280_32BIT_ENABLE
+
 WARNINGS += -Wall   
 WARNINGS += -Wextra -Waggregate-return -Wcast-align
 WARNINGS += -Wcast-qual  -Wchar-subscripts  -Wcomment -Wconversion 
@@ -33,12 +35,13 @@ WARNINGS += -Wunused-function  -Wunused-label  -Wunused-parameter
 WARNINGS += -Wunused-value  -Wunused-variable  -Wvariadic-macros 
 WARNINGS += -Wvolatile-register-var  -Wwrite-strings
 
-CFLAGS = $(WARNINGS) -fno-short-enums -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
+CFLAGS = $(PREPROCESSOR) $(WARNINGS) -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
 LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
 HDRS += -I../src 
 HDRS += -I../
+HDRS += -I../src/thirdparty/
 HDRS += -I../src/thirdparty/free_rtos/
 HDRS += -I../src/thirdparty/free_rtos/include
 HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
@@ -49,6 +52,7 @@ SRCS += ../src/test.c
 SRCS += ../src/isr_handle.c 
 SRCS += ../src/sys_init.c 
 SRCS += ../src/i2c.c 
+SRCS += ../src/thirdparty/bme280/bme280.c 
 SRCS += ../src/thirdparty/free_rtos/portable/GCC/ARM_CM3/port.c 
 SRCS += ../src/thirdparty/free_rtos/portable/MemMang/heap_4.c 
 SRCS += ../src/thirdparty/free_rtos/list.c 
