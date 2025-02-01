@@ -107,6 +107,7 @@ static void i2c_init(void)
 
     NVIC_EnableIRQ(I2C1_EV_IRQn);
     NVIC_EnableIRQ(I2C1_ER_IRQn);
+    NVIC_SetPriorityGrouping(3);
 }
 
 static void periphery_init(void)
@@ -148,7 +149,7 @@ void SystemInit(void)
 {
     system_clock_config();
     periphery_init();
-    systick_init(SYSTEM_CORE_CLOCK_HZ / 1000);
+    systick_init(SYSTEM_CORE_CLOCK_HZ / 1000);    
 }
 
 void _close(void)

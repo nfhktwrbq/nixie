@@ -1,58 +1,17 @@
-//***************************************************************************
-//
-//  Author(s)...: Павел Бобков  http://ChipEnable.Ru   
-//
-//  Target(s)...: mega16
-//
-//  Compiler....: GCC
-//
-//  Description.: Драйвер ведущего I2C устройства. 
-//                Код основан на Atmel`овских доках - AVR315.
-//
-//  Data........: 13.11.13
-//
-//***************************************************************************
 #ifndef I2CM_H
 #define I2CM_H
 
 #include <stdint.h>
+#include "stm_defines.h"
 
-/****************************************************************************
-  Настройки модуля
-****************************************************************************/
+typedef struct i2c_inst_s
+{
+    I2C_TypeDef * inst;
+    uint8_t slave_address;
+} i2c_inst_s;
 
-/*размер буфера I2C модуля*/
-#define I2C_BUFFER_SIZE  8      
-
-/*Пользовательские коды*/
-#define I2C_NO_STATE               0x00
-#define I2C_SUCCESS                0xff
-
-/****************************************************************************
-  Определения констант
-****************************************************************************/
-
-#define I2C_READ_BIT     0       // позиция R/W бита в адресном пакете
-#define I2C_ADR_BITS     1       // позиция адреса в адресном пакете
-
-/****************************************************************************
-  Пользовательские функции
-****************************************************************************/
-
-/*Инициализация и установка частоты SCL сигнала*/
-uint8_t i2c_master_init(uint16_t freq);
-
-/*Передать данные*/
-void i2c_send_data(uint8_t *msg, uint8_t msgSize);
-
-/*Получить принятые данные*/
-uint8_t i2c_get_data(uint8_t *msg, uint8_t msgSize);
-
-/*Взять статус I2C модуля*/
-uint8_t i2c_get_state(void);
-
-/**/
-void i2c_event_handler(void);
-void i2c_error_handler(void);
+uint8_t i2c_master_init(i2c_inst_s * i2c);
+uint32_t i2c_read(i2c_inst_s * i2c, uint8_t reg_addr, uint8_t * reg_data, uint32_t len);
+uint32_t i2c_write(i2c_inst_s * i2c, uint8_t reg_addr, const uint8_t * reg_data, uint32_t len);
 
 #endif //I2CM_H

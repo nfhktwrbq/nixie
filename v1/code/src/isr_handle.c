@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include "isr_handle.h"
-#include "i2c_stm.h"
 #include "sys_init.h"
 
 static void default_handler(void)
@@ -18,12 +17,6 @@ void NMI_Handler(void)
 
 void HardFault_Handler(void)
 {
-
-    volatile uint32_t i = 50;
-    for (uint32_t k = 0; k < 10; k++)
-    {
-        i++;
-    }
     default_handler();
 }
 
@@ -218,16 +211,14 @@ void TIM4_IRQHandler(void)
     default_handler();
 }
 
-extern I2C_HandleTypeDef hi2c;
-
 void I2C1_EV_IRQHandler(void)
 {
-    HAL_I2C_EV_IRQHandler(&hi2c);
+    default_handler();
 }
 
 void I2C1_ER_IRQHandler(void)
 {
-    HAL_I2C_ER_IRQHandler(&hi2c);
+    default_handler();
 }
 
 void I2C2_EV_IRQHandler(void)
