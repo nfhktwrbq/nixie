@@ -43,7 +43,7 @@ void Reset_Handler(void) {
     }
 
     /* Call the clock system intitialization function. */
-    SystemInit();
+    system_init();
 
     /* Call the application's entry point. */
     main();

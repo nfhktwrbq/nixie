@@ -10,7 +10,7 @@ OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 SIZE = arm-none-eabi-size
 
-PREPROCESSOR += -DBME280_32BIT_ENABLE
+PREPROCESSOR_DEFINES += -DBME280_32BIT_ENABLE
 
 WARNINGS += -Wall   
 WARNINGS += -Wextra -Waggregate-return -Wcast-align
@@ -41,10 +41,10 @@ WARNINGS += -Wunused-function  -Wunused-label  -Wunused-parameter
 WARNINGS += -Wunused-value  -Wunused-variable  -Wvariadic-macros 
 WARNINGS += -Wvolatile-register-var  -Wwrite-strings
 
-OPTIMIZATION = -O0
+OPTIMIZATION ?= -O0
 
 CFLAGS += -g3 -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
-CFLAGS += $(OPTIMIZATION) $(PREPROCESSOR) $(WARNINGS)
+CFLAGS += $(OPTIMIZATION) $(WARNINGS)
 LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections -nostartfiles --specs=nano.specs --specs=nosys.specs
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
@@ -61,6 +61,7 @@ HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
 
 SRCS += ../src/main.c 
 SRCS += ../src/drivers/i2c.c 
+SRCS += ../src/drivers/uart.c 
 SRCS += ../src/hardware/isr_handle.c 
 SRCS += ../src/hardware/startup.c 
 SRCS += ../src/hardware/sys_init.c 

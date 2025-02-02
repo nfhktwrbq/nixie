@@ -6,11 +6,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-extern void xPortSysTickHandler( void );
-
-static uint32_t ms_ticks = 0;
-
-static void system_clock_config(void)
+static void system_clock_config_(void)
 {
     // Enable HSE
     RCC->CR |= RCC_CR_HSEON;
@@ -54,7 +50,7 @@ static void system_clock_config(void)
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;  // AHB clock = SYSCLK
 }
 
-static void uart_init(uint32_t baudrate)
+static void uart_init_(void)
 {
     // Enable GPIOA clock
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
@@ -68,29 +64,10 @@ static void uart_init(uint32_t baudrate)
     GPIOA->CRH |= GPIO_CRH_CNF10_0;                    // Input floating
 
     // Enable USART1 clock
-    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
-
-    // Set baud rate
-    USART1->BRR = SYSTEM_CORE_CLOCK_HZ / baudrate / 2; // Assuming SystemCoreClock is set to 72MHz
-    /// todo
-    // uint32_t mantissa = SYSTEM_CORE_CLOCK_HZ / (baudrate * 8);
-    // uint32_t fraction = ((SYSTEM_CORE_CLOCK_HZ * 100 / 8 / baudrate ) % 100) * 16 / 100;
-    // USART1->BRR = (fraction & 0xF) | (mantissa << 4);
-
-    // Configure USART1
-    USART1->CR1 = USART_CR1_TE | USART_CR1_RE; // Enable Transmitter and Receiver
-    USART1->CR1 |= USART_CR1_UE;               // Enable USART1
+    RCC->APB2ENR |= RCC_APB2ENR_USART1EN; 
 }
 
-void uart_send_char(char c)
-{
-    // Wait until the transmit data register is empty
-    while (!(USART1->SR & USART_SR_TXE))
-        ;
-    USART1->DR = c; // Send the character
-}
-
-static void i2c_init(void)
+static void i2c_init_(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
     RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
@@ -110,13 +87,13 @@ static void i2c_init(void)
     NVIC_SetPriorityGrouping(3);
 }
 
-static void periphery_init(void)
+static void periphery_init_(void)
 {
-    i2c_init();
-    uart_init(921600);
+    i2c_init_();
+    uart_init_();
 }
 
-static void systick_init(uint32_t ticks)
+static void systick_init_(uint32_t ticks)
 {
     // Disable SysTick timer
     SysTick->CTRL = 0;
@@ -135,21 +112,11 @@ static void systick_init(uint32_t ticks)
     NVIC_SetPriority(SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
 }
 
-void systick_handler(void)
+void system_init(void)
 {
-    ms_ticks++; // Increment millisecond counter
-    // Call the FreeRTOS tick handler
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) 
-    {
-        xPortSysTickHandler();
-    }
-}
-
-void SystemInit(void)
-{
-    system_clock_config();
-    periphery_init();
-    systick_init(SYSTEM_CORE_CLOCK_HZ / 1000);    
+    system_clock_config_();
+    periphery_init_();
+    systick_init_(SYSTEM_CORE_CLOCK_HZ / 1000);    
 }
 
 void _close(void)
