@@ -4,3 +4,6 @@
 [submodule "v1/code/src/thirdparty/bme280"]
 	path = v1/code/src/thirdparty/bme280
 	url = https://github.com/boschsensortec/BME280_SensorAPI.git
+[submodule "v1/code/thirdparty/printf"]
+	path = v1/code/src/thirdparty/printf
+	url = https://github.com/mpaland/printf.git
