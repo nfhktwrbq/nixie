@@ -1,4 +1,4 @@
-LINKER_SCRIPT += ../STM32F103C8TX_FLASH.ld
-PREPROCESSOR_DEFINES += -DSTM32F103C8X=1
+LINKER_SCRIPT += ../src/hardware/STM32F103C8TX_FLASH.ld
+PREPROCESSOR_DEFINES += -DSTM32F103C8X
 
-include  ../src/build.mk
+include  ../src/utils/build.mk

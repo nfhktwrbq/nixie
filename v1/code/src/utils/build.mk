@@ -14,44 +14,56 @@ PREPROCESSOR += -DBME280_32BIT_ENABLE
 
 WARNINGS += -Wall   
 WARNINGS += -Wextra -Waggregate-return -Wcast-align
-WARNINGS += -Wcast-qual  -Wchar-subscripts  -Wcomment -Wconversion 
+WARNINGS += -Wcast-qual  -Wchar-subscripts  -Wcomment 
 WARNINGS += -Wdisabled-optimization 
-WARNINGS += -Werror -Wfloat-equal  -Wformat  -Wformat=2 
+WARNINGS += -Werror -Wformat  -Wformat=2 
 WARNINGS += -Wformat-nonliteral -Wformat-security  
 WARNINGS += -Wformat-y2k 
 WARNINGS += -Wimplicit  -Wimport  -Winit-self  -Winline 
 WARNINGS += -Winvalid-pch   
-WARNINGS += -Wunsafe-loop-optimizations  -Wlong-long -Wmissing-braces 
+WARNINGS += -Wunsafe-loop-optimizations  -Wmissing-braces 
+#WARNINGS += -Wlong-long -Wfloat-equal -Wconversion #printf 
 WARNINGS += -Wmissing-field-initializers -Wmissing-format-attribute   
 WARNINGS += -Wmissing-include-dirs
 #WARNINGS += -Wpadded  
+WARNINGS += -Wlogical-op -Wundef -Wsizeof-pointer-div -Wint-conversion
+WARNINGS += -Wincompatible-pointer-types -Wimplicit-function-declaration
+WARNINGS += -Warray-bounds 
+#WARNINGS += -Wstrict-prototypes
 WARNINGS += -Wpacked  -Wparentheses  -Wpointer-arith 
 WARNINGS += -Wredundant-decls -Wreturn-type 
 WARNINGS += -Wsequence-point  -Wshadow -Wsign-compare  -Wstack-protector 
-WARNINGS += -Wstrict-aliasing -Wstrict-aliasing=2 -Wswitch  -Wswitch-default 
+#WARNINGS += -Wstrict-aliasing -Wstrict-aliasing=2  #not work with FreeRtos Os optimizations
+WARNINGS += -Wswitch  -Wswitch-default 
 WARNINGS += -Wswitch-enum -Wtrigraphs  -Wuninitialized 
 WARNINGS += -Wunknown-pragmas  -Wunreachable-code -Wunused 
 WARNINGS += -Wunused-function  -Wunused-label  -Wunused-parameter 
 WARNINGS += -Wunused-value  -Wunused-variable  -Wvariadic-macros 
 WARNINGS += -Wvolatile-register-var  -Wwrite-strings
 
-CFLAGS = $(PREPROCESSOR) $(WARNINGS) -g -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
-LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
+OPTIMIZATION = -O0
+
+CFLAGS += -g3 -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
+CFLAGS += $(OPTIMIZATION) $(PREPROCESSOR) $(WARNINGS)
+LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections -nostartfiles --specs=nano.specs --specs=nosys.specs
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
-HDRS += -I../src 
 HDRS += -I../
+HDRS += -I../src
+HDRS += -I../src/app 
+HDRS += -I../src/drivers
+HDRS += -I../src/hardware
+HDRS += -I../src/utils
 HDRS += -I../src/thirdparty/
 HDRS += -I../src/thirdparty/free_rtos/
 HDRS += -I../src/thirdparty/free_rtos/include
 HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
 
-SRCS += ../src/startup.c 
 SRCS += ../src/main.c 
-SRCS += ../src/test.c 
-SRCS += ../src/isr_handle.c 
-SRCS += ../src/sys_init.c 
-SRCS += ../src/i2c.c 
+SRCS += ../src/drivers/i2c.c 
+SRCS += ../src/hardware/isr_handle.c 
+SRCS += ../src/hardware/startup.c 
+SRCS += ../src/hardware/sys_init.c 
 SRCS += ../src/thirdparty/bme280/bme280.c 
 SRCS += ../src/thirdparty/free_rtos/portable/GCC/ARM_CM3/port.c 
 SRCS += ../src/thirdparty/free_rtos/portable/MemMang/heap_4.c 
@@ -59,6 +71,7 @@ SRCS += ../src/thirdparty/free_rtos/list.c
 SRCS += ../src/thirdparty/free_rtos/queue.c 
 SRCS += ../src/thirdparty/free_rtos/tasks.c 
 SRCS += ../src/thirdparty/free_rtos/timers.c
+SRCS += ../src/thirdparty/printf/printf.c 
 
 # ASMS = ../src/startup.s
 

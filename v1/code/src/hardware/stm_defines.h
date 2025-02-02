@@ -1,8 +1,9 @@
 #pragma once
 
-#if STM32F103C6X == 1
+
+#ifdef STM32F103C6X 
 #include "stm32f103x6.h"
-#elif STM32F103C8X == 1
+#elif defined(STM32F103C8X)
 #include "stm32f103xb.h"
 #else
 #error "MK is not defiend"
