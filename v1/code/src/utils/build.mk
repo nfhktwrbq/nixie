@@ -60,7 +60,9 @@ HDRS += -I../src/thirdparty/free_rtos/include
 HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
 
 SRCS += ../src/main.c 
+SRCS += ../src/drivers/bkp.c 
 SRCS += ../src/drivers/i2c.c 
+SRCS += ../src/drivers/rtc.c 
 SRCS += ../src/drivers/uart.c 
 SRCS += ../src/hardware/isr_handle.c 
 SRCS += ../src/hardware/startup.c 

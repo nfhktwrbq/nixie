@@ -9,6 +9,8 @@
 #include "bme280/bme280_defs.h"
 #include "uart.h"
 #include "printf/printf.h"
+#include "debug.h"
+#include "rtc.h"
 
 #define BME280_ADDR     (0x76)
 
@@ -85,7 +87,7 @@ static int8_t get_temperature(uint32_t period, struct bme280_dev *dev)
             // uart_send_char((char)((comp_data.temperature >> 8) & 0xff));
             // uart_send_char((char)((comp_data.temperature >> 16) & 0xff));
             // uart_send_char((char)((comp_data.temperature >> 24) & 0xff));
-            printf("\ntemp = %d\n", comp_data.temperature);
+            DBG_INFO("\ntemp = %d\n", comp_data.temperature);
             // uart_send_char('6');
             idx++;
         }
@@ -153,11 +155,9 @@ void i2c_task( void * pvParameters )
         rslt = get_temperature(period, &dev);
 
         // bme280_coines_deinit();
-
-
-        uart_send_char('1');
-        uart_send_char((char)rslt);
-        uart_send_char('2');
+        
+        DBG_INFO("res = %u, time %u\n", rslt, rtc_datetime_get());
+        
         vTaskDelay(1000);
         /* Task code goes here. */
     }
@@ -190,6 +190,7 @@ int main(void)
 {
     // uint8_t buf[8];
     uart_init(921600);
+    rtc_init();
     uart_send_char('1');
     uart_send_char('2');
     uart_send_char('3');

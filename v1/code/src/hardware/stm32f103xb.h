@@ -40,6 +40,8 @@
  extern "C" {
 #endif 
 
+#include <stdint.h>
+
 /** @addtogroup Configuration_section_for_CMSIS
   * @{
   */

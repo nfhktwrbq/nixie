@@ -6,6 +6,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+
 static void system_clock_config_(void)
 {
     // Enable HSE
@@ -26,9 +27,10 @@ static void system_clock_config_(void)
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
         ;
 
-    RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+    // Enable PWR
+    RCC->APB1ENR |= RCC_APB1ENR_PWREN | RCC_APB1ENR_BKPEN;
 
-    // Enable to write to RCC->BDCR
+    // Enable to write to RCC->BDCR and the backup domain
     PWR->CR |= PWR_CR_DBP;
 
     // Configure RTC clock source to LSE
@@ -42,7 +44,11 @@ static void system_clock_config_(void)
     while (!(RCC->BDCR & RCC_BDCR_LSERDY))
         ;
 
-    PWR->CR &= ~PWR_CR_DBP;
+    // Select LSE as the RTC clock source
+    RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;
+
+    // Enable the RTC clock
+    RCC->BDCR |= RCC_BDCR_RTCEN;
 
     // Configure peripheral clocks
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2; // APB1 clock = HCLK/2
