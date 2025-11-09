@@ -1,4 +1,13 @@
 {
+    "cortex-debug.armToolchainPath": "/home/muaddib/Programs/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/bin",
+    "cortex-debug.openocdPath": "/usr/bin/openocd",
+    "cortex-debug.gdbPath": "/home/muaddib/Programs/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gdb",
+    "terminal.integrated.env.linux": {
+    "PATH": "${env:PATH}:/home/muaddib/Programs/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/bin",
+    "PYTHONHOME": "/usr/bin/python3.8",
+    "PYTHONPATH": "/usr/lib/python3.8"
+    },
+    
     "makefile.makeDirectory": "",
     "makefile.configurations": [
         {
@@ -42,7 +51,8 @@
         "stm32f103x6.h": "c",
         "i2c.h": "c",
         "i2c_stm.h": "c",
-        "compare": "c"
+        "compare": "c",
+        "consts.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false,
 }

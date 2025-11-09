@@ -13,6 +13,7 @@
 #include "rtc.h"
 
 #define BME280_ADDR     (0x76)
+#define EEPROM_ARRD     (0x57)
 
 void delay(uint32_t ticks)
 {
@@ -57,7 +58,7 @@ void bme_delay_us(uint32_t period, void *intf_ptr)
     {}
 }
 
-#define SAMPLE_COUNT  UINT8_C(50)
+#define SAMPLE_COUNT  UINT8_C(1)
 /*!
  *  @brief This internal API is used to get compensated temperature data.
  */
@@ -191,13 +192,50 @@ int main(void)
     // uint8_t buf[8];
     uart_init(921600);
     rtc_init();
+    __enable_irq();
     uart_send_char('1');
     uart_send_char('2');
     uart_send_char('3');
     uart_send_char('4');
 
+    i2c_inst_s i2c_eeprom = 
+    {
+        .inst = I2C1,
+        .slave_address = EEPROM_ARRD,
+    };
 
-    __enable_irq();
+    i2c_inst_s i2c_bmp = 
+    {
+        .inst = I2C1,
+        .slave_address = BME280_ADDR,
+    };
+
+
+    
+    uint8_t buf[8] = {0};
+    
+    i2c_master_init(&i2c_eeprom);
+    i2c_read(&i2c_eeprom, 0x00, buf, 8);
+    
+    
+
+    for (uint8_t i = 0; i < sizeof(buf); i++)
+    {
+        uart_send_char(buf[i]);
+    }
+
+    if (buf[0] != 1)
+    {
+        for (uint8_t i = 0; i < sizeof(buf); i++)
+        {
+            buf[i] = i+1;
+        }
+        i2c_write(&i2c_eeprom, 0x00, buf, 8);
+    }
+
+    i2c_read(&i2c_bmp, 0xD0, buf, 1);
+
+    uart_send_char(buf[0]);
     
 
     // buf[0] = 0xd0;

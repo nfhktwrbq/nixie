@@ -1,4 +1,8 @@
 LINKER_SCRIPT += ../src/hardware/linker/STM32F103X6_FLASH.ld
+
+OPTIMIZATION ?= -Os
+
 PREPROCESSOR_DEFINES += -DSTM32F103C6X
+PREPROCESSOR_DEFINES += -DDEBUG
 
 include  ../src/utils/build.mk

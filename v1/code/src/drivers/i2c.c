@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include "i2c.h"
 #include "stm_defines.h"
-#include "stm32f103xb.h"
 #include "consts.h"
 #include "sys_init.h"
 

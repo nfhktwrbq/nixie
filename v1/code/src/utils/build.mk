@@ -11,6 +11,7 @@ OBJDUMP = arm-none-eabi-objdump
 SIZE = arm-none-eabi-size
 
 PREPROCESSOR_DEFINES += -DBME280_32BIT_ENABLE
+PREPROCESSOR_DEFINES += -DPRINTF_INCLUDE_CONFIG_H
 
 WARNINGS += -Wall   
 WARNINGS += -Wextra -Waggregate-return -Wcast-align
@@ -41,7 +42,7 @@ WARNINGS += -Wunused-function  -Wunused-label  -Wunused-parameter
 WARNINGS += -Wunused-value  -Wunused-variable  -Wvariadic-macros 
 WARNINGS += -Wvolatile-register-var  -Wwrite-strings
 
-OPTIMIZATION ?= -O0
+OPTIMIZATION ?= -O3
 
 CFLAGS += -g3 -std=gnu11 -mcpu=cortex-m3 -mno-thumb-interwork -mfix-cortex-m3-ldrd -mfloat-abi=soft -mthumb 
 CFLAGS += $(OPTIMIZATION) $(WARNINGS)
@@ -51,6 +52,7 @@ LDFLAGS = -T$(LINKER_SCRIPT) --static -Wl,--gc-sections -nostartfiles --specs=na
 HDRS += -I../
 HDRS += -I../src
 HDRS += -I../src/app 
+HDRS += -I../src/configs
 HDRS += -I../src/drivers
 HDRS += -I../src/hardware
 HDRS += -I../src/utils
@@ -100,10 +102,12 @@ $(TARGET_PATH).elf: $(OBJS) $(ASMOBJS)
 	$(CC) $(CFLAGS) $(foreach obj, $^,$(BUILD_DIR)/$(notdir $(obj))) -o $@  $(LDFLAGS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(HDRS) -c $< -o $(BUILD_DIR)/$(notdir $@) $(PREPROCESSOR_DEFINES)
+	@echo [CC] $@
+	@$(CC) $(CFLAGS) $(HDRS) -c $< -o $(BUILD_DIR)/$(notdir $@) $(PREPROCESSOR_DEFINES)
 
 %.o: %.s
-	$(CC) $(CFLAGS) -c $< -o $(BUILD_DIR)/$(notdir $@) $(PREPROCESSOR_DEFINES)
+	@echo [CS] $@
+	@$(CC) $(CFLAGS) -c $< -o $(BUILD_DIR)/$(notdir $@) $(PREPROCESSOR_DEFINES)
 
 %.size: $(TARGET_PATH).elf
 	$(SIZE) -x $< 
