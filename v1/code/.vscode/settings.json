@@ -52,7 +52,9 @@
         "i2c.h": "c",
         "i2c_stm.h": "c",
         "compare": "c",
-        "consts.h": "c"
+        "consts.h": "c",
+        "uart.h": "c",
+        "debug.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false,
 }

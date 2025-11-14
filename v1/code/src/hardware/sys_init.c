@@ -1,13 +1,16 @@
-#include <stdint.h>
-#include <string.h>
 #include "sys_init.h"
+
 #include "stm_defines.h"
 #include "core/core_cm3.h"
-#include "FreeRTOS.h"
-#include "task.h"
 
+#include "uart.h"
+#include "rtc.h"
+#include "i2c.h"
 
-static void system_clock_config_(void)
+#include <stdint.h>
+#include <string.h>
+
+static void system_clock_config_ll(void)
 {
     // Enable HSE
     RCC->CR |= RCC_CR_HSEON;
@@ -56,7 +59,7 @@ static void system_clock_config_(void)
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;  // AHB clock = SYSCLK
 }
 
-static void uart_init_(void)
+static void uart_init_ll(void)
 {
     // Enable GPIOA clock
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
@@ -73,7 +76,7 @@ static void uart_init_(void)
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN; 
 }
 
-static void i2c_init_(void)
+static void i2c_init_ll(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
     RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
@@ -93,13 +96,7 @@ static void i2c_init_(void)
     NVIC_SetPriorityGrouping(3);
 }
 
-static void periphery_init_(void)
-{
-    i2c_init_();
-    uart_init_();
-}
-
-static void systick_init_(uint32_t ticks)
+static void systick_init_ll(uint32_t ticks)
 {
     // Disable SysTick timer
     SysTick->CTRL = 0;
@@ -118,11 +115,30 @@ static void systick_init_(uint32_t ticks)
     NVIC_SetPriority(SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
 }
 
+static void periphery_init(void)
+{
+    i2c_init_ll();
+    uart_init_ll();
+
+    uart_init(921600);
+    rtc_init();        
+}
+
+
 void system_init(void)
 {
-    system_clock_config_();
-    periphery_init_();
-    systick_init_(SYSTEM_CORE_CLOCK_HZ / 1000);    
+#ifdef DEBUG
+    // Enable fault handlers
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk | 
+                  SCB_SHCSR_BUSFAULTENA_Msk | 
+                  SCB_SHCSR_USGFAULTENA_Msk;
+#endif
+    system_clock_config_ll();    
+    systick_init_ll(SYSTEM_CORE_CLOCK_HZ / 1000); 
+
+    periphery_init();
+    
+    __enable_irq();
 }
 
 void _close(void)

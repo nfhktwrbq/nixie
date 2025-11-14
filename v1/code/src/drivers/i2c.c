@@ -1,8 +1,13 @@
-#include <stdbool.h>
 #include "i2c.h"
+
 #include "stm_defines.h"
 #include "consts.h"
 #include "sys_init.h"
+#include "sync_object.h"
+
+#include <stdbool.h>
+#include <stddef.h>
+
 
 #define I2C_100KHZ_COEFF (5u)
 #define DEFAULT_ADDR (0x11)
@@ -10,6 +15,17 @@
 
 uint8_t i2c_master_init(i2c_inst_s * i2c)
 {
+    if (i2c->sync_object == NULL)
+    {
+        i2c->sync_object = sync_object_init();
+    }
+    else
+    {
+        return 0;
+    }
+
+    sync_object_take(i2c->sync_object);
+
     const uint32_t freq = APB1_CLOCK_HZ;
     i2c->inst->CR1 &= ~I2C_CR1_PE;
 
@@ -31,11 +47,15 @@ uint8_t i2c_master_init(i2c_inst_s * i2c)
 
     i2c->inst->CR1 |= I2C_CR1_PE;
 
+    sync_object_release(i2c->sync_object);
+
     return 0;
 }
 
 uint32_t i2c_read(i2c_inst_s * i2c, uint8_t reg_addr, uint8_t * reg_data, uint32_t len) 
 {
+    sync_object_take(i2c->sync_object);
+
     // Wait until I2C is not busy
     while (i2c->inst->SR2 & I2C_SR2_BUSY);
 
@@ -95,11 +115,15 @@ uint32_t i2c_read(i2c_inst_s * i2c, uint8_t reg_addr, uint8_t * reg_data, uint32
     // Generate STOP condition
     i2c->inst->CR1 |= I2C_CR1_STOP;
 
+    sync_object_release(i2c->sync_object);
+
     return 0; // Success
 }
 
 uint32_t i2c_write(i2c_inst_s * i2c, uint8_t reg_addr, const uint8_t * reg_data, uint32_t len) 
 {
+    sync_object_take(i2c->sync_object);
+
     // Wait until I2C is not busy
     while (i2c->inst->SR2 & I2C_SR2_BUSY);
 
@@ -137,6 +161,9 @@ uint32_t i2c_write(i2c_inst_s * i2c, uint8_t reg_addr, const uint8_t * reg_data,
 
     // Generate STOP condition
     i2c->inst->CR1 |= I2C_CR1_STOP;
+
+
+    sync_object_release(i2c->sync_object);
 
     return 0; // Success
 }

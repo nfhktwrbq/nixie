@@ -55,13 +55,14 @@ HDRS += -I../src/app
 HDRS += -I../src/configs
 HDRS += -I../src/drivers
 HDRS += -I../src/hardware
+HDRS += -I../src/software
 HDRS += -I../src/utils
 HDRS += -I../src/thirdparty/
 HDRS += -I../src/thirdparty/free_rtos/
 HDRS += -I../src/thirdparty/free_rtos/include
 HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
 
-SRCS += ../src/main.c 
+SRCS += ../src/app/sensor.c 
 SRCS += ../src/drivers/bkp.c 
 SRCS += ../src/drivers/i2c.c 
 SRCS += ../src/drivers/rtc.c 
@@ -69,6 +70,8 @@ SRCS += ../src/drivers/uart.c
 SRCS += ../src/hardware/isr_handle.c 
 SRCS += ../src/hardware/startup.c 
 SRCS += ../src/hardware/sys_init.c 
+SRCS += ../src/main.c 
+SRCS += ../src/software/sync_object.c
 SRCS += ../src/thirdparty/bme280/bme280.c 
 SRCS += ../src/thirdparty/free_rtos/portable/GCC/ARM_CM3/port.c 
 SRCS += ../src/thirdparty/free_rtos/portable/MemMang/heap_4.c 
@@ -96,7 +99,7 @@ $(TARGET_PATH).bin: $(TARGET_PATH).elf
 	$(OBJCOPY) -O binary $< $@
 
 $(TARGET_PATH).lst: $(TARGET_PATH).elf
-	$(OBJDUMP) -D $< > $@
+	$(OBJDUMP) -S -d $< > $@
 
 $(TARGET_PATH).elf: $(OBJS) $(ASMOBJS)
 	$(CC) $(CFLAGS) $(foreach obj, $^,$(BUILD_DIR)/$(notdir $(obj))) -o $@  $(LDFLAGS)

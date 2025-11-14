@@ -8,6 +8,7 @@ typedef struct i2c_inst_s
 {
     I2C_TypeDef * inst;
     uint8_t slave_address;
+    void * sync_object;
 } i2c_inst_s;
 
 uint8_t i2c_master_init(i2c_inst_s * i2c);

@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include "isr_handle.h"
-#include "sys_init.h"
 
 
 extern uint32_t _sidata;
@@ -41,9 +40,6 @@ void Reset_Handler(void) {
     for (dst = &_sbss; dst < &_ebss; dst++) {
         *dst = 0;
     }
-
-    /* Call the clock system intitialization function. */
-    system_init();
 
     /* Call the application's entry point. */
     main();
