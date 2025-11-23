@@ -24,7 +24,7 @@
 			"servertype": "openocd",
 			"executable": "./stm32f103c8x/nixie.elf",
 			"svdFile": "STM32F103.svd",
-			"runToEntryPoint": "main",
+			"runToEntryPoint": "Reset_Handler",
 			"showDevDebugOutput": "none",
 			"configFiles": [
 				"/usr/share/openocd/scripts/interface/stlink.cfg",

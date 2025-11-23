@@ -11,4 +11,4 @@ typedef struct app_sens_cfg_s
     uint32_t meas_period_ms;
 } app_sens_cfg_s;
 
-void app_sensor(app_sens_cfg_s * cfg);
+void sensor_service(app_sens_cfg_s * cfg);

@@ -1,9 +1,13 @@
-#include <stdint.h>
 #include "isr_handle.h"
+
 #include "sys_init.h"
 #include "debug.h"
+#include "services/keyboard.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
+
+#include <stdint.h>
 
 static void default_handler(void)
 {
@@ -14,6 +18,7 @@ static void default_handler(void)
 }
 
 #ifdef DEBUG
+
 
 static void decode_fault_status(uint32_t cfsr, uint32_t hfsr)
 {
@@ -154,12 +159,27 @@ __attribute__((naked)) void HardFault_Handler(void)
 
 #else // DEBUG
 
+
 void HardFault_Handler(void)
 {
     default_handler();
 }
 
 #endif // DEBUG
+
+static void exti_handle(uint32_t pending_bit, buttons_e key)
+{
+    if (EXTI->PR & pending_bit) 
+    {        
+        EXTI->PR = pending_bit;
+        buttons_irq_disable();
+        TaskHandle_t b_th = keyboard_task_handle_get();
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        xTaskNotifyFromISR(b_th, key, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+}
+
 
 void NMI_Handler(void)
 {
@@ -233,26 +253,24 @@ void RCC_IRQHandler(void)
     default_handler();
 }
 
-void EXTI0_IRQHandler(void)
+void EXTI0_IRQHandler(void) 
 {
-    default_handler();
+    exti_handle(EXTI_PR_PR0, BUTTON_OK);
+}
+void EXTI1_IRQHandler(void) 
+{
+    exti_handle(EXTI_PR_PR1, BUTTON_DOWN);
 }
 
-void EXTI1_IRQHandler(void)
+void EXTI2_IRQHandler(void) 
 {
-    default_handler();
+    exti_handle(EXTI_PR_PR2, BUTTON_UP);
 }
 
-void EXTI2_IRQHandler(void)
+void EXTI3_IRQHandler(void) 
 {
-    default_handler();
+    exti_handle(EXTI_PR_PR3, BUTTON_LEFT);
 }
-
-void EXTI3_IRQHandler(void)
-{
-    default_handler();
-}
-
 void EXTI4_IRQHandler(void)
 {
     default_handler();
@@ -403,9 +421,16 @@ void USART3_IRQHandler(void)
     default_handler();
 }
 
-void EXTI15_10_IRQHandler(void)
+void EXTI15_10_IRQHandler(void) 
 {
-    default_handler();
+    exti_handle(EXTI_PR_PR13, BUTTON_RIGHT);
+    
+    // Check other lines in this group if you add more later
+    if (EXTI->PR & EXTI_PR_PR10) { EXTI->PR = EXTI_PR_PR10; }
+    if (EXTI->PR & EXTI_PR_PR11) { EXTI->PR = EXTI_PR_PR11; }
+    if (EXTI->PR & EXTI_PR_PR12) { EXTI->PR = EXTI_PR_PR12; }
+    if (EXTI->PR & EXTI_PR_PR14) { EXTI->PR = EXTI_PR_PR14; }
+    if (EXTI->PR & EXTI_PR_PR15) { EXTI->PR = EXTI_PR_PR15; }
 }
 
 void RTC_Alarm_IRQHandler(void)

@@ -41,6 +41,7 @@
 
 #include "core/core_cm3.h"
 #include "stm_defines.h"
+#include "debug.h"
 
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK			0
@@ -95,12 +96,13 @@ configKERNEL_INTERRUPT_PRIORITY setting.  Here 15 corresponds to the lowest
 NVIC value of 255. */
 #define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
 
-#define configASSERT( x )         \
-    if( ( x ) == 0 )              \
-    {                             \
-        taskDISABLE_INTERRUPTS(); \
-        for( ; ; )                \
-        ;                         \
+#define configASSERT( x )           \
+    if( ( x ) == 0 )                \
+    {                               \
+        taskDISABLE_INTERRUPTS();   \
+        DBG_ERR("FreeRTOS assert"); \
+        for( ; ; )                  \
+        ;                           \
     }
 
 #define INCLUDE_vTaskPrioritySet               1

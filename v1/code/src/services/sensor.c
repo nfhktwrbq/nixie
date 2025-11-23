@@ -89,6 +89,7 @@ static void bmp280_task(void * params)
     };
 
     int8_t rslt;
+    (void)rslt;
     uint32_t period;
     struct bme280_settings settings;
 
@@ -128,7 +129,7 @@ static void bmp280_task(void * params)
 }
 
 /* Function that creates a task. */
-void app_sensor(app_sens_cfg_s * cfg)
+void sensor_service(app_sens_cfg_s * cfg)
 {
     BaseType_t xReturned;
     TaskHandle_t xHandle = NULL;
@@ -144,5 +145,8 @@ void app_sensor(app_sens_cfg_s * cfg)
                     tskIDLE_PRIORITY + 2,   /* Priority at which the task is created. */
                     &xHandle );         /* Used to pass out the created task's handle. */
 
-    (void)xReturned;
+    if (xReturned != pdPASS)
+    {
+        DBG_ERR("Sensors task failed\n");
+    }
 }

@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "FreeRTOSConfig.h"
+
 static void system_clock_config_ll(void)
 {
     // Enable HSE
@@ -23,6 +25,9 @@ static void system_clock_config_ll(void)
     RCC->CR |= RCC_CR_PLLON;        // Enable PLL
     while (!(RCC->CR & RCC_CR_PLLRDY))
         ;
+
+    // FLASH->ACR |= FLASH_ACR_PRFTBE;  // Enable Prefetch Buffer
+    // FLASH->ACR |= FLASH_ACR_LATENCY_2; // 2 wait states for 48-72 MHz
 
     // Select PLL as system clock source
     RCC->CFGR &= ~RCC_CFGR_SW;
@@ -76,6 +81,79 @@ static void uart_init_ll(void)
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN; 
 }
 
+static void buttons_init_ll(void)
+{
+    // Release PB3 from SWO
+    AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_1; 
+
+    // Enable clocks
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | 
+                    RCC_APB2ENR_IOPCEN | RCC_APB2ENR_AFIOEN;
+
+    // Configure GPIOs as inputs PA0-2
+    GPIOA->CRL &= ~(GPIO_CRL_MODE0 | GPIO_CRL_CNF0 | GPIO_CRL_MODE1 | GPIO_CRL_CNF1 | GPIO_CRL_MODE2 | GPIO_CRL_CNF2);
+    GPIOA->CRL |= (GPIO_CRL_CNF0_0 | GPIO_CRL_CNF1_0 | GPIO_CRL_CNF2_0);
+    GPIOA->ODR &= ~(GPIO_ODR_ODR0 | GPIO_ODR_ODR1 | GPIO_ODR_ODR2);
+    
+    // PB3
+    GPIOB->CRL &= ~(GPIO_CRL_MODE3 | GPIO_CRL_CNF3);
+    GPIOB->CRL |= GPIO_CRL_CNF3_0;
+    GPIOB->ODR &= ~GPIO_ODR_ODR3;
+    
+    // PC13
+    GPIOC->CRH &= ~(GPIO_CRH_MODE13 | GPIO_CRH_CNF13);
+    GPIOC->CRH |= GPIO_CRH_CNF13_0;
+    GPIOC->ODR &= ~GPIO_ODR_ODR13;
+
+    // 3. Connect GPIOs to EXTI lines
+    // PA0 -> EXTI0 (EXTICR[0] for EXTI0-3)
+    AFIO->EXTICR[0] &= ~AFIO_EXTICR1_EXTI0;
+    AFIO->EXTICR[0] |= AFIO_EXTICR1_EXTI0_PA;
+    
+    // PA1 -> EXTI1
+    AFIO->EXTICR[0] &= ~AFIO_EXTICR1_EXTI1;
+    AFIO->EXTICR[0] |= AFIO_EXTICR1_EXTI1_PA;
+    
+    // PA2 -> EXTI2
+    AFIO->EXTICR[0] &= ~AFIO_EXTICR1_EXTI2;
+    AFIO->EXTICR[0] |= AFIO_EXTICR1_EXTI2_PA;
+    
+    // PB3 -> EXTI3
+    AFIO->EXTICR[0] &= ~AFIO_EXTICR1_EXTI3;
+    AFIO->EXTICR[0] |= AFIO_EXTICR1_EXTI3_PB;
+    
+    // PC13 -> EXTI13 (EXTICR[3] for EXTI12-15)
+    AFIO->EXTICR[3] &= ~AFIO_EXTICR4_EXTI13;
+    AFIO->EXTICR[3] |= AFIO_EXTICR4_EXTI13_PC;
+
+    // 4. Configure trigger edges (enable both rising & falling for all)
+    EXTI->RTSR |= EXTI_RTSR_TR0 | EXTI_RTSR_TR1 | EXTI_RTSR_TR2 | 
+                  EXTI_RTSR_TR3 | EXTI_RTSR_TR13;
+    // EXTI->FTSR |= EXTI_FTSR_TR0 | EXTI_FTSR_TR1 | EXTI_FTSR_TR2 | 
+    //               EXTI_FTSR_TR3 | EXTI_FTSR_TR13;
+    
+    // 5. Unmask all EXTI lines
+    EXTI->IMR |= EXTI_IMR_MR0 | EXTI_IMR_MR1 | EXTI_IMR_MR2 | 
+                 EXTI_IMR_MR3 | EXTI_IMR_MR13;
+    
+    // 6. Configure NVIC for all interrupts
+    // Individual handlers for EXTI0, EXTI1, EXTI2, EXTI3
+    NVIC_EnableIRQ(EXTI0_IRQn);
+    NVIC_EnableIRQ(EXTI1_IRQn);
+    NVIC_EnableIRQ(EXTI2_IRQn);
+    NVIC_EnableIRQ(EXTI3_IRQn);
+    
+    // Grouped handler for EXTI15_10 (includes EXTI13)
+    NVIC_EnableIRQ(EXTI15_10_IRQn);
+    
+    // Set priorities if needed
+    NVIC_SetPriority(EXTI0_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1);
+    NVIC_SetPriority(EXTI1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1);
+    NVIC_SetPriority(EXTI2_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1);
+    NVIC_SetPriority(EXTI3_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1);
+    NVIC_SetPriority(EXTI15_10_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1);
+}
+
 static void i2c_init_ll(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
@@ -98,6 +176,9 @@ static void i2c_init_ll(void)
 
 static void systick_init_ll(uint32_t ticks)
 {
+    #if 0
+    (void)ticks;
+    #else
     // Disable SysTick timer
     SysTick->CTRL = 0;
 
@@ -113,17 +194,35 @@ static void systick_init_ll(uint32_t ticks)
                     SysTick_CTRL_ENABLE_Msk;     // Enable SysTick timer
 
     NVIC_SetPriority(SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
+    #endif
 }
 
 static void periphery_init(void)
 {
     i2c_init_ll();
     uart_init_ll();
+    buttons_init_ll();
 
     uart_init(921600);
     rtc_init();        
 }
 
+
+void system_init_(void)
+{
+#ifdef DEBUG
+    // Enable fault handlers
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk | 
+                  SCB_SHCSR_BUSFAULTENA_Msk | 
+                  SCB_SHCSR_USGFAULTENA_Msk;
+#endif
+    system_clock_config_ll();    
+    systick_init_ll(SYSTEM_CORE_CLOCK_HZ / 1000); 
+
+    buttons_init_ll();
+    
+    // __enable_irq();
+}
 
 void system_init(void)
 {
@@ -140,6 +239,7 @@ void system_init(void)
     
     __enable_irq();
 }
+
 
 void _close(void)
 {

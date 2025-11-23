@@ -54,7 +54,14 @@
         "compare": "c",
         "consts.h": "c",
         "uart.h": "c",
-        "debug.h": "c"
+        "debug.h": "c",
+        "buttons.h": "c",
+        "chrono": "c",
+        "functional": "c",
+        "cstdlib": "c",
+        "ratio": "c",
+        "sensor.h": "c",
+        "keyboard.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false,
 }
