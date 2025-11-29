@@ -57,7 +57,7 @@ static void keyboard_task(void * args)
                     vTaskDelay(PRESS_CHECK_TIMEOUT_STICKS);
                 }
                 k_state.released = true;
-                k_state.pressed = false;
+                // k_state.pressed = false;
                 DBG_INFO("Key %u released\n", button_id);
             }
             buttons_irq_enable();

@@ -3,9 +3,11 @@
 #include "stm_defines.h"
 #include "core/core_cm3.h"
 
-#include "uart.h"
-#include "rtc.h"
-#include "i2c.h"
+#include "modules/uart.h"
+#include "modules/rtc.h"
+#include "modules/i2c.h"
+
+#include "drivers/display.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -227,11 +229,15 @@ static void systick_init_ll(uint32_t ticks)
 
 static void periphery_init(void)
 {
-    i2c_init_ll();
+    #ifdef DEBUG
     uart_init_ll();
-    buttons_init_ll();
-
     uart_init(921600);
+    #endif
+
+    i2c_init_ll();
+    buttons_init_ll();
+    display_init_ll();
+
     rtc_init();        
 }
 

@@ -4,12 +4,21 @@
 #include "services/keyboard.h"
 #include "debug.h"
 #include "drivers/buttons.h"
+#include "modules/rtc.h"
+#include "drivers/display.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
 
-
+void vApplicationIdleHook(void)
+{
+    if (rtc_second_flag_get())
+    {
+        DBG_INFO("+\n");
+        display_test_ll();
+    }
+}
 
 int main(void)
 {

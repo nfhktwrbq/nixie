@@ -14,3 +14,5 @@
 
 #define SET         (1u)
 #define RESET       (0u)
+
+#define ARRAY_ITEMS_QTY(x) (sizeof(x)/sizeof(x[0]))

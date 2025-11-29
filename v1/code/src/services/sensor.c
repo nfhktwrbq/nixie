@@ -1,7 +1,7 @@
 #include "sensor.h"
 
 #include "bme280/bme280.h"
-#include "i2c.h"
+#include "modules/i2c.h"
 #include "sys_init.h"
 #include "debug.h"
 
