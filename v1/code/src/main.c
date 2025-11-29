@@ -34,7 +34,7 @@ int main(void)
 
 
     keyboard_service();
-    sensor_service(&(app_sens_cfg_s){ .i2c = I2C1, .meas_period_ms = 1000 });
+    sensor_service(&(app_sens_cfg_s){ .i2c = I2C1, .meas_period_ms = 10000 });
 
     vTaskStartScheduler();
 

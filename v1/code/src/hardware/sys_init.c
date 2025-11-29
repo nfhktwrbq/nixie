@@ -12,22 +12,50 @@
 
 #include "FreeRTOSConfig.h"
 
+
+#define SYSTEM_CORE_CLOCK_HZ   (72000000u)      // todo defined by system_clock_config_ll hardcoded
+#define APB1_CLOCK_HZ          (36000000u)      // todo defined by system_clock_config_ll hardcoded
+#define APB2_CLOCK_HZ          (72000000u)      // todo defined by system_clock_config_ll hardcoded
+#define LSE_CLOCK_HZ           (32768u)         // todo defined by system_clock_config_ll hardcoded
+
+uint32_t cc_sys_clk_hz_get(void)
+{
+    return SYSTEM_CORE_CLOCK_HZ;
+}
+
+uint32_t cc_i2c_clk_hz_get(void)
+{
+    return APB1_CLOCK_HZ;
+}
+
+uint32_t cc_rtc_clk_hz_get(void)
+{
+    return LSE_CLOCK_HZ;
+}
+
+uint32_t cc_dbg_uart_clk_hz_get(void)
+{
+    return APB2_CLOCK_HZ;
+}
+
 static void system_clock_config_ll(void)
 {
+    FLASH->ACR |= FLASH_ACR_PRFTBE;  // Enable Prefetch Buffer
+    FLASH->ACR |= FLASH_ACR_LATENCY_2; // 2 wait states for 48-72 MHz
+
     // Enable HSE
     RCC->CR |= RCC_CR_HSEON;
     while (!(RCC->CR & RCC_CR_HSERDY))
         ;
 
     // Configure PLL
-    RCC->CFGR &= ~RCC_CFGR_PLLSRC;  // Set PLL source to HSE
+    RCC->CFGR |= RCC_CFGR_PLLSRC;  // Set PLL source to HSE
     RCC->CFGR |= RCC_CFGR_PLLMULL9; // Set PLL multiplication factor to 9
     RCC->CR |= RCC_CR_PLLON;        // Enable PLL
     while (!(RCC->CR & RCC_CR_PLLRDY))
         ;
 
-    // FLASH->ACR |= FLASH_ACR_PRFTBE;  // Enable Prefetch Buffer
-    // FLASH->ACR |= FLASH_ACR_LATENCY_2; // 2 wait states for 48-72 MHz
+    RCC->CR &= ~RCC_CR_HSION;  // Disable of HSI
 
     // Select PLL as system clock source
     RCC->CFGR &= ~RCC_CFGR_SW;

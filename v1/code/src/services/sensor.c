@@ -28,7 +28,7 @@ static void bme_delay_us(uint32_t period, void *intf_ptr)
 {
     //todo
     (void)intf_ptr;
-    for (volatile uint32_t i = 0; i < period * (SYSTEM_CORE_CLOCK_HZ / 1000000); i++)
+    for (volatile uint32_t i = 0; i < period * (cc_sys_clk_hz_get() / 1000000); i++)
     {}
 }
 

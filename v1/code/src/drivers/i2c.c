@@ -26,7 +26,7 @@ uint8_t i2c_master_init(i2c_inst_s * i2c)
 
     sync_object_take(i2c->sync_object);
 
-    const uint32_t freq = APB1_CLOCK_HZ;
+    const uint32_t freq = cc_i2c_clk_hz_get();
     i2c->inst->CR1 &= ~I2C_CR1_PE;
 
     i2c->inst->CR1 |= I2C_CR1_SWRST;

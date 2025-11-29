@@ -11,7 +11,7 @@ void rtc_init(void)
     // Disable write protection
     RTC->CRL |= RTC_CRL_CNF;
 
-    const uint32_t prescaler = LSE_CLOCK_HZ - 1;
+    const uint32_t prescaler = cc_rtc_clk_hz_get() - 1;
 
     const uint32_t cur_prescaler = ((RTC->DIVH & 0xF) << 16) | RTC->DIVL;
     if (cur_prescaler != prescaler)

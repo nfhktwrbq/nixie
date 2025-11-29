@@ -4,13 +4,15 @@
 
 void uart_init(uint32_t baudrate)
 {
-   // Set baud rate
-    USART1->BRR = SYSTEM_CORE_CLOCK_HZ / baudrate / 2; // Assuming SystemCoreClock is set to 72MHz
-    /// todo
-    // uint32_t mantissa = SYSTEM_CORE_CLOCK_HZ / (baudrate * 8);
-    // uint32_t fraction = ((SYSTEM_CORE_CLOCK_HZ * 100 / 8 / baudrate ) % 100) * 16 / 100;
-    // USART1->BRR = (fraction & 0xF) | (mantissa << 4);
+    const uint32_t usartdiv_mul = 16;
+    // Set baud rate
+    const uint32_t frac_qty = (1 << USART_BRR_DIV_Mantissa_Pos);
+    const uint32_t uart_clk_hz = cc_dbg_uart_clk_hz_get();    
+    const uint32_t mantissa = uart_clk_hz / (baudrate * 16);
+    uint32_t fraction = ((uart_clk_hz % (usartdiv_mul * baudrate)) * frac_qty) / (usartdiv_mul * baudrate);
 
+    USART1->BRR = (fraction & USART_BRR_DIV_Fraction_Msk) | (mantissa << USART_BRR_DIV_Mantissa_Pos);
+    
     // Configure USART1
     USART1->CR1 = USART_CR1_TE | USART_CR1_RE; // Enable Transmitter and Receiver
     USART1->CR1 |= USART_CR1_UE;               // Enable USART1
