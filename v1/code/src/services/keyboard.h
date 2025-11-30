@@ -18,3 +18,4 @@ typedef struct key_state_s
 
 TaskHandle_t keyboard_task_handle_get(void);
 void keyboard_service(void);
+bool keyboard_key_is_pressed(buttons_e * key, bool reset_state);

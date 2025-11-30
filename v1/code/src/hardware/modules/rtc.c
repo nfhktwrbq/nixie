@@ -5,6 +5,7 @@
 #include "consts.h"
 #include "debug.h"
 
+static volatile uint32_t rtc_cnt_bufferized;
 
 void rtc_calibration_set(uint32_t cal)
 {
@@ -37,11 +38,15 @@ void rtc_init(void)
         RTC->PRLL = (prescaler & C_TWO_BYTE_MASK);
         RTC->PRLH = ((prescaler >> 16) & 0xF);
     }
+    // Read the RTC counter value
+    rtc_cnt_bufferized = (RTC->CNTH << 16) | RTC->CNTL;
 
     DBG_INFO("RTC cal = %u\n", (BKP->RTCCR & BKP_RTCCR_CAL_Msk) >> BKP_RTCCR_CAL_Pos);
 
     // Enable interrupt every second
-    // RTC->CRH |= RTC_CRH_SECIE;
+    RTC->CRH |= RTC_CRH_SECIE;
+    NVIC_EnableIRQ(RTC_IRQn);
+    NVIC_SetPriority(RTC_IRQn, 0);
 
     // Enable write protection
     RTC->CRL &= ~RTC_CRL_CNF;
@@ -61,6 +66,7 @@ void rtc_datetime_set(uint32_t timestamp)
     // Set the RTC counter value
     RTC->CNTH = (timestamp >> 16) & 0xFFFF;
     RTC->CNTL = timestamp & 0xFFFF;
+    rtc_cnt_bufferized = timestamp;
 
     // Enable write protection
     RTC->CRL &= ~RTC_CRL_CNF;
@@ -79,6 +85,7 @@ uint32_t rtc_datetime_get(void)
 
     // Read the RTC counter value
     time = (RTC->CNTH << 16) | RTC->CNTL;
+    rtc_cnt_bufferized = time;
 
     DBG_INFO("RTC time is %u", time);
 
@@ -95,5 +102,19 @@ bool rtc_second_flag_get(void)
     }
     return flag;
 }
+
+void rtc_irq_handle(void)
+{
+    if (rtc_second_flag_get())
+    {
+        rtc_cnt_bufferized++;
+    }
+}
+
+uint32_t rtc_buferized_cnt_get(void)
+{
+    return rtc_cnt_bufferized;
+}
+
 
 

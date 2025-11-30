@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include "stm_defines.h"
+#include "modules/i2c.h"
 
 #include <stdint.h>
 
 typedef struct app_sens_cfg_s
 {
-    I2C_TypeDef * i2c;
+    i2c_inst_s * i2c;
     uint32_t meas_period_ms;
 } app_sens_cfg_s;
 

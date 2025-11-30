@@ -64,6 +64,8 @@ HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
 
 SRCS += ../src/drivers/buttons.c 
 SRCS += ../src/drivers/display.c 
+SRCS += ../src/drivers/settings.c 
+SRCS += ../src/drivers_ll/eeprom.c 
 SRCS += ../src/hardware/isr_handle.c 
 SRCS += ../src/hardware/sys_init.c 
 SRCS += ../src/hardware/startup.c 
@@ -75,6 +77,7 @@ SRCS += ../src/hardware/modules/uart.c
 SRCS += ../src/main.c 
 SRCS += ../src/services/sensor.c 
 SRCS += ../src/services/keyboard.c
+SRCS += ../src/software/crc.c
 SRCS += ../src/software/datetime.c
 SRCS += ../src/software/sync_object.c
 SRCS += ../src/thirdparty/bme280/bme280.c 

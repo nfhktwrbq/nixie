@@ -17,12 +17,23 @@ static const uint8_t days_in_month_leap[] = {
     31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 };
 
+static const uint32_t SECONDS_PER_MINUTE = 60;
+static const uint32_t SECONDS_PER_HOUR = 3600;
+static const uint32_t SECONDS_PER_DAY = 86400;
+
+void datetime_time_from_timestamp(uint32_t timestamp, time_s *time)
+{ 
+    uint32_t time_remaining = timestamp % SECONDS_PER_DAY;
+    time->hour = time_remaining / SECONDS_PER_HOUR;
+    time_remaining %= SECONDS_PER_HOUR;
+    time->minute = time_remaining / SECONDS_PER_MINUTE;
+    time->second = time_remaining % SECONDS_PER_MINUTE;
+}
+
+
 // Прямая функция (из предыдущего ответа)
-void datetime_from_timestamp(uint32_t timestamp, datetime_s *datetime) {
-    const uint32_t SECONDS_PER_MINUTE = 60;
-    const uint32_t SECONDS_PER_HOUR = 3600;
-    const uint32_t SECONDS_PER_DAY = 86400;
-    
+void datetime_from_timestamp(uint32_t timestamp, datetime_s *datetime)
+{    
     uint16_t year = 2025;
     uint8_t month = 1;
     uint32_t days = timestamp / SECONDS_PER_DAY;
@@ -58,11 +69,8 @@ void datetime_from_timestamp(uint32_t timestamp, datetime_s *datetime) {
 }
 
 // Обратная функция: преобразование даты/времени в timestamp
-uint32_t datetime_to_timestamp(const datetime_s *datetime) {
-    const uint32_t SECONDS_PER_MINUTE = 60;
-    const uint32_t SECONDS_PER_HOUR = 3600;
-    const uint32_t SECONDS_PER_DAY = 86400;
-    
+uint32_t datetime_to_timestamp(const datetime_s *datetime) 
+{    
     // Базовая дата: 01.01.2025 00:00:00
     const uint16_t BASE_YEAR = 2025;
     

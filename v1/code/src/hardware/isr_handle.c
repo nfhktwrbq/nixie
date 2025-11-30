@@ -3,6 +3,7 @@
 #include "sys_init.h"
 #include "debug.h"
 #include "services/keyboard.h"
+#include "modules/rtc.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -240,7 +241,7 @@ void TAMPER_IRQHandler(void)
 
 void RTC_IRQHandler(void)
 {
-    default_handler();
+    rtc_irq_handle();
 }
 
 void FLASH_IRQHandler(void)

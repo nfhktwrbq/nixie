@@ -15,13 +15,14 @@
 
 uint8_t i2c_master_init(i2c_inst_s * i2c)
 {
+    if (i2c->inited)
+    {
+        return 0;
+    }
+
     if (i2c->sync_object == NULL)
     {
         i2c->sync_object = sync_object_init();
-    }
-    else
-    {
-        return 0;
     }
 
     sync_object_take(i2c->sync_object);
@@ -49,10 +50,12 @@ uint8_t i2c_master_init(i2c_inst_s * i2c)
 
     sync_object_release(i2c->sync_object);
 
+    i2c->inited = true;
+
     return 0;
 }
 
-uint32_t i2c_read(i2c_inst_s * i2c, uint8_t reg_addr, uint8_t * reg_data, uint32_t len) 
+uint32_t i2c_read(i2c_inst_s * i2c, uint8_t slave_address, uint8_t reg_addr, uint8_t * reg_data, uint32_t len) 
 {
     sync_object_take(i2c->sync_object);
 
@@ -66,7 +69,7 @@ uint32_t i2c_read(i2c_inst_s * i2c, uint8_t reg_addr, uint8_t * reg_data, uint32
     while (!(i2c->inst->SR1 & I2C_SR1_SB));
 
     // Send slave address with write bit (LSB = 0)
-    i2c->inst->DR = i2c->slave_address << 1; // Replace 0x68 with your device's address
+    i2c->inst->DR = slave_address << 1; // Replace 0x68 with your device's address
 
     // Wait for ADDR flag (address sent)
     while (!(i2c->inst->SR1 & I2C_SR1_ADDR));
@@ -87,7 +90,7 @@ uint32_t i2c_read(i2c_inst_s * i2c, uint8_t reg_addr, uint8_t * reg_data, uint32
     while (!(i2c->inst->SR1 & I2C_SR1_SB));
 
     // Send slave address with read bit (LSB = 1)
-    i2c->inst->DR = (i2c->slave_address << 1) | 0x01;
+    i2c->inst->DR = (slave_address << 1) | 0x01;
 
     // Wait for ADDR flag (address sent)
     while (!(i2c->inst->SR1 & I2C_SR1_ADDR));
@@ -120,7 +123,7 @@ uint32_t i2c_read(i2c_inst_s * i2c, uint8_t reg_addr, uint8_t * reg_data, uint32
     return 0; // Success
 }
 
-uint32_t i2c_write(i2c_inst_s * i2c, uint8_t reg_addr, const uint8_t * reg_data, uint32_t len) 
+uint32_t i2c_write(i2c_inst_s * i2c, uint8_t slave_address, uint8_t reg_addr, const uint8_t * reg_data, uint32_t len) 
 {
     sync_object_take(i2c->sync_object);
 
@@ -134,7 +137,7 @@ uint32_t i2c_write(i2c_inst_s * i2c, uint8_t reg_addr, const uint8_t * reg_data,
     while (!(i2c->inst->SR1 & I2C_SR1_SB));
 
     // Send slave address with write bit (LSB = 0)
-    i2c->inst->DR = i2c->slave_address << 1; // Replace 0x68 with your device's address
+    i2c->inst->DR = slave_address << 1; // Replace 0x68 with your device's address
 
     // Wait for ADDR flag (address sent)
     while (!(i2c->inst->SR1 & I2C_SR1_ADDR));

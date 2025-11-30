@@ -64,7 +64,21 @@
         "keyboard.h": "c",
         "gpio.h": "c",
         "rtc.h": "c",
-        "freertosconfig.h": "c"
+        "freertosconfig.h": "c",
+        "cstddef": "c",
+        "settings.h": "c",
+        "array": "c",
+        "hash_map": "c",
+        "hash_set": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "format": "c",
+        "initializer_list": "c",
+        "ranges": "c",
+        "span": "c",
+        "valarray": "c",
+        "string": "c",
+        "datetime.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false,
 }

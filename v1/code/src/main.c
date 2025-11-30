@@ -6,44 +6,64 @@
 #include "drivers/buttons.h"
 #include "modules/rtc.h"
 #include "drivers/display.h"
+#include "drivers/settings.h"
+#include "datetime.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+static i2c_inst_s i2c_inst = 
+{
+    .inst = I2C1,
+    .inited = false,
+};
+
+#define EEPROM_ARRD     (0x57)
+
+static settings_s settings;
+static uint32_t prev_timestamp = 0;
 
 void vApplicationIdleHook(void)
 {
-    if (rtc_second_flag_get())
+    uint32_t timestamp = rtc_buferized_cnt_get();
+    if (prev_timestamp != timestamp)
     {
-        DBG_INFO("+\n");
+        prev_timestamp = timestamp;
+        time_s time = {0};
+        datetime_time_from_timestamp(timestamp, &time) ;
+        DBG_INFO("%2u:%2u:%2u (%u)\n", time.hour, time.minute, time.second, timestamp);
         display_test_ll();
+        buttons_e btn;
+        if (keyboard_key_is_pressed(&btn, true))
+        {
+            if (btn == BUTTON_OK)
+            {
+                settings.meas_period_ms = 15000;
+                settings_save(&settings);
+            }
+        }
     }
 }
+
+
 
 int main(void)
 {
     system_init();    
 
-    DBG_INFO("Hello\n");    
+    DBG_INFO("Hello\n");   
     
-    // for (uint32_t key_num = BUTTON_MIN; key_num < BUTTONS_QTY; key_num++)
-    // {
-    //     if (buttons_is_pressed(key_num))
-    //     {
-    //         DBG_INFO("Pressed %u\n", key_num); 
-    //     }
-    // }
-    
-    // while(1)
-    // {
-    //     // buttons_debug_print();
-    //     test_buttons_directly();
-    //     for (volatile uint32_t i = 0; i < 1000000; i++);
-    // }
 
+    settings_init((settings_iface_s){
+            .i2c = &i2c_inst,
+            .address = EEPROM_ARRD,
+    });
+    (void)settings_restore(&settings);
+
+    
 
     keyboard_service();
-    sensor_service(&(app_sens_cfg_s){ .i2c = I2C1, .meas_period_ms = 10000 });
+    sensor_service(&(app_sens_cfg_s){ .i2c = &i2c_inst, .meas_period_ms = settings.meas_period_ms });
 
     vTaskStartScheduler();
 

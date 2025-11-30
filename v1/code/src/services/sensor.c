@@ -15,13 +15,13 @@
 static BME280_INTF_RET_TYPE bme_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void * intf_ptr)
 {
     i2c_inst_s * i2c = (i2c_inst_s *)intf_ptr;
-    return (BME280_INTF_RET_TYPE)i2c_write(i2c, reg_addr, reg_data, len);
+    return (BME280_INTF_RET_TYPE)i2c_write(i2c, BME280_ADDR, reg_addr, reg_data, len);
 }
 
 static BME280_INTF_RET_TYPE bme_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr)
 {
     i2c_inst_s * i2c = (i2c_inst_s *)intf_ptr;
-    return (BME280_INTF_RET_TYPE)i2c_read(i2c, reg_addr, reg_data, len);
+    return (BME280_INTF_RET_TYPE)i2c_read(i2c, BME280_ADDR, reg_addr, reg_data, len);
 }
 
 static void bme_delay_us(uint32_t period, void *intf_ptr)
@@ -71,18 +71,12 @@ static void bmp280_task(void * params)
 {
     app_sens_cfg_s * cfg = params;
 
-    i2c_inst_s i2c_inst = 
-    {
-        .inst = cfg->i2c,
-        .slave_address = BME280_ADDR,
-    };
-
-    i2c_master_init(&i2c_inst);
+    i2c_master_init(cfg->i2c);
 
     struct bme280_dev dev = 
     {
         .intf = BME280_I2C_INTF,
-        .intf_ptr = (void *) &i2c_inst,
+        .intf_ptr = (void *) cfg->i2c,
         .read = bme_i2c_read,
         .write = bme_i2c_write,
         .delay_us = bme_delay_us,
