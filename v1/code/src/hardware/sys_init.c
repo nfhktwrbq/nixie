@@ -93,7 +93,7 @@ static void system_clock_config_ll(void)
     RCC->CFGR |= RCC_CFGR_PPRE2_DIV1; // APB2 clock = HCLK
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;  // AHB clock = SYSCLK
 }
-
+#ifdef DEBUG
 static void uart_init_ll(void)
 {
     // Enable GPIOA clock
@@ -110,6 +110,7 @@ static void uart_init_ll(void)
     // Enable USART1 clock
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN; 
 }
+#endif
 
 static void buttons_init_ll(void)
 {
@@ -184,20 +185,43 @@ static void buttons_init_ll(void)
     NVIC_SetPriority(EXTI15_10_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1);
 }
 
+static void i2c_quick_recovery(void)
+{
+    // Temporarily configure as GPIO output
+    uint32_t temp_crl = GPIOB->CRL;
+    GPIOB->CRL &= ~(GPIO_CRL_MODE6 | GPIO_CRL_MODE7 | GPIO_CRL_CNF6 | GPIO_CRL_CNF7);
+    GPIOB->CRL |= (0x3 << GPIO_CRL_MODE6_Pos) |  // Output
+                  (0x1 << GPIO_CRL_CNF6_Pos)  |  // Open-drain
+                  (0x3 << GPIO_CRL_MODE7_Pos) |  // Output
+                  (0x1 << GPIO_CRL_CNF7_Pos);    // Open-drain
+    
+    
+    GPIOB->BSRR = GPIO_BSRR_BS6; // SCL high
+    GPIOB->BSRR = GPIO_BSRR_BS7; // SDA high (STOP)
+    
+    // Restore original configuration
+    GPIOB->CRL = temp_crl;
+}
+
 static void i2c_init_ll(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
     RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
     RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C1RST;
 
-    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
     RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+    RCC->APB2RSTR |= RCC_APB2RSTR_IOPBRST;
+    RCC->APB2RSTR &= ~(RCC_APB2RSTR_IOPBRST);
+    i2c_quick_recovery();
 
-    RCC->APB2RSTR |= RCC_APB2RSTR_AFIORST | RCC_APB2RSTR_IOPBRST;
-    RCC->APB2RSTR &= ~(RCC_APB2RSTR_AFIORST | RCC_APB2RSTR_IOPBRST);
+    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+
+    RCC->APB2RSTR |= RCC_APB2RSTR_AFIORST;
+    RCC->APB2RSTR &= ~(RCC_APB2RSTR_AFIORST);
 
     GPIOB->CRL &= ~(GPIO_CRL_MODE6 | GPIO_CRL_MODE7 | GPIO_CRL_CNF6 | GPIO_CRL_CNF7);
     GPIOB->CRL |= GPIO_CRL_MODE6 | GPIO_CRL_MODE7 | GPIO_CRL_CNF6 | GPIO_CRL_CNF7;
+
 
     NVIC_EnableIRQ(I2C1_EV_IRQn);
     NVIC_EnableIRQ(I2C1_ER_IRQn);
@@ -206,7 +230,7 @@ static void i2c_init_ll(void)
 
 static void systick_init_ll(uint32_t ticks)
 {
-    #if 0
+    #if 1
     (void)ticks;
     #else
     // Disable SysTick timer

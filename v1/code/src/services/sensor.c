@@ -10,18 +10,19 @@
 
 #include <stdint.h>
 
-#define BME280_ADDR     (0x76)
+#define BME280_ADDR             (0x76)
+#define BME280_REG_ADDR_LEN     (1u)
 
 static BME280_INTF_RET_TYPE bme_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void * intf_ptr)
 {
     i2c_inst_s * i2c = (i2c_inst_s *)intf_ptr;
-    return (BME280_INTF_RET_TYPE)i2c_write(i2c, BME280_ADDR, reg_addr, reg_data, len);
+    return (BME280_INTF_RET_TYPE)i2c_write(i2c, BME280_ADDR, reg_addr, BME280_REG_ADDR_LEN, reg_data, len);
 }
 
 static BME280_INTF_RET_TYPE bme_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr)
 {
     i2c_inst_s * i2c = (i2c_inst_s *)intf_ptr;
-    return (BME280_INTF_RET_TYPE)i2c_read(i2c, BME280_ADDR, reg_addr, reg_data, len);
+    return (BME280_INTF_RET_TYPE)i2c_read(i2c, BME280_ADDR, reg_addr, BME280_REG_ADDR_LEN, reg_data, len);
 }
 
 static void bme_delay_us(uint32_t period, void *intf_ptr)

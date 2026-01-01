@@ -12,10 +12,12 @@ SIZE = arm-none-eabi-size
 
 PREPROCESSOR_DEFINES += -DBME280_32BIT_ENABLE
 PREPROCESSOR_DEFINES += -DPRINTF_INCLUDE_CONFIG_H
+PREPROCESSOR_DEFINES += -DI2C_USE_IRQ=1
 
 WARNINGS += -Wall   
 WARNINGS += -Wextra -Waggregate-return -Wcast-align
-WARNINGS += -Wcast-qual  -Wchar-subscripts  -Wcomment 
+WARNINGS += -Wcast-qual 
+WARNINGS += -Wchar-subscripts  -Wcomment 
 WARNINGS += -Wdisabled-optimization 
 WARNINGS += -Werror -Wformat  -Wformat=2 
 WARNINGS += -Wformat-nonliteral -Wformat-security  

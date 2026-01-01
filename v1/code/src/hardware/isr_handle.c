@@ -5,6 +5,8 @@
 #include "services/keyboard.h"
 #include "modules/rtc.h"
 
+#include "modules/i2c.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -379,12 +381,20 @@ void TIM4_IRQHandler(void)
 
 void I2C1_EV_IRQHandler(void)
 {
+#if I2C_USE_IRQ
+    i2c_irq_event_handler();
+#else
     default_handler();
+#endif
 }
 
 void I2C1_ER_IRQHandler(void)
 {
+#if I2C_USE_IRQ
+    i2c_irq_err_handler();
+#else
     default_handler();
+#endif
 }
 
 void I2C2_EV_IRQHandler(void)
