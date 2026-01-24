@@ -22,4 +22,7 @@ typedef enum gpio_speed_e
 } gpio_speed_e;
 
 void gpio_output_init(GPIO_TypeDef* GPIOx, uint8_t pin, gpio_cfg_e cfg, gpio_speed_e speed);
+void gpio_set(GPIO_TypeDef* GPIOx, uint8_t pin); 
+void gpio_reset(GPIO_TypeDef* GPIOx, uint8_t pin);
 void gpio_toggle(GPIO_TypeDef* GPIOx, uint8_t pin);
+uint8_t gpio_read(GPIO_TypeDef* GPIOx, uint8_t pin);

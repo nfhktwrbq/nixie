@@ -33,6 +33,13 @@ static void bme_delay_us(uint32_t period, void *intf_ptr)
     {}
 }
 
+static uint32_t sens_data;
+
+uint32_t sensor_service_get(void)
+{
+    return sens_data;
+}
+
 #define SAMPLE_COUNT  UINT8_C(1)
 /*!
  *  @brief This internal API is used to get compensated temperature data.
@@ -59,7 +66,7 @@ static int8_t get_temperature(uint32_t period, struct bme280_dev *dev)
             // printf("Temperature[%d]:   %ld deg C\n", idx, (long int)comp_data.temperature);
 
             DBG_INFO("\ntemp = %d\n", comp_data.temperature);
-
+            sens_data = comp_data.temperature;
             idx++;
         }
     }
@@ -122,6 +129,8 @@ static void bmp280_task(void * params)
         vTaskDelay(cfg->meas_period_ms);
     }
 }
+
+
 
 /* Function that creates a task. */
 void sensor_service(app_sens_cfg_s * cfg)

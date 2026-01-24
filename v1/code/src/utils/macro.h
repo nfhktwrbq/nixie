@@ -16,3 +16,5 @@
 #define RESET       (0u)
 
 #define ARRAY_ITEMS_QTY(x) (sizeof(x)/sizeof(x[0]))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) > (b) ? (b) : (a))

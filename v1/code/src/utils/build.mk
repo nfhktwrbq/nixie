@@ -68,6 +68,7 @@ SRCS += ../src/drivers/buttons.c
 SRCS += ../src/drivers/display.c 
 SRCS += ../src/drivers/settings.c 
 SRCS += ../src/drivers_ll/eeprom.c 
+SRCS += ../src/drivers_ll/timer.c 
 SRCS += ../src/hardware/isr_handle.c 
 SRCS += ../src/hardware/sys_init.c 
 SRCS += ../src/hardware/startup.c 

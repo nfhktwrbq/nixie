@@ -8,6 +8,7 @@
 #include "modules/i2c.h"
 
 #include "drivers/display.h"
+#include "drivers_ll/timer.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -38,6 +39,11 @@ uint32_t cc_rtc_clk_hz_get(void)
 uint32_t cc_dbg_uart_clk_hz_get(void)
 {
     return APB2_CLOCK_HZ;
+}
+
+uint32_t cc_tim2_clk_hz_get(void)
+{
+    return APB1_CLOCK_HZ * 2;
 }
 
 static void system_clock_config_ll(void)
@@ -261,6 +267,7 @@ static void periphery_init(void)
     i2c_init_ll();
     buttons_init_ll();
     display_init_ll();
+    timer_init_ll(1600);
 
     rtc_init();        
 }

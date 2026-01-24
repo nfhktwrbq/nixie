@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "services/keyboard.h"
 #include "modules/rtc.h"
+#include "drivers/display.h"
 
 #include "modules/i2c.h"
 
@@ -366,7 +367,22 @@ void TIM1_CC_IRQHandler(void)
 
 void TIM2_IRQHandler(void)
 {
-    default_handler();
+    static uint32_t decimation = 0;
+    // Update interrupt
+    if (TIM2->SR & TIM_SR_UIF)   
+    {
+        // Clear flag
+        TIM2->SR &= ~TIM_SR_UIF;
+        if (decimation % 2) 
+        {
+            display_turn_off();
+        }
+        else
+        {
+            display_digit_switch();
+        }
+        decimation++;
+    }
 }
 
 void TIM3_IRQHandler(void)
