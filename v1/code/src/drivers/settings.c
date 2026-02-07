@@ -31,8 +31,8 @@ bool settings_restore(settings_s * settings)
 
     settings_srv_s s_srv = {0};
 
-    eeprom_read(&eeprom, &s_srv, sizeof(settings_srv_s), 0);    
-    
+    eeprom_read(&eeprom, &s_srv, sizeof(settings_srv_s), 0);
+
     uint32_t crc = crc32(&s_srv.settings, sizeof(settings_s));
     if (crc != s_srv.crc)
     {

@@ -4,10 +4,14 @@
 #include "consts.h"
 #include "sys_init.h"
 #include "sync_object.h"
+#include "debug.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 
+#ifndef I2C_DEBUG
+    #define I2C_DEBUG   (0)
+#endif
 
 #define I2C_100KHZ_COEFF        (5u)
 #define DEFAULT_ADDR            (0x11)
@@ -19,6 +23,19 @@
 
 #ifndef I2C_USE_IRQ
 #define I2C_USE_IRQ     (0)
+#endif
+
+#if (I2C_DEBUG == 1)
+volatile uint32_t s_counter = 0;
+volatile uint32_t statuses[32] = {0};
+
+static void add_rec(uint32_t rec)
+{
+    statuses[s_counter%32] = rec;
+    s_counter++;
+}
+#else
+#define add_rec(x)
 #endif
 
 static void init(const i2c_inst_s * i2c)
@@ -145,15 +162,6 @@ void i2c_irq_err_handler(void)
         i2c_ctx.error = I2C_BERR;
     }
     
-}
-
-volatile uint32_t s_counter = 0;
-volatile uint32_t statuses[32] = {0};
-
-static void add_rec(uint32_t rec)
-{
-    statuses[s_counter%32] = rec;
-    s_counter++;
 }
 
 void i2c_irq_event_handler(void)
@@ -362,8 +370,11 @@ static i2c_error_t i2c_try_execute(void)
     uint32_t ms_qty = 0;
     while (i2c_ctx.i2c->inst->SR2 & I2C_SR2_BUSY)
     {
-        i2c_ctx.i2c->delay_ms(1);
-        ms_qty++;
+        if (i2c_ctx.i2c->delay_ms != NULL)
+        {
+            i2c_ctx.i2c->delay_ms(1);
+            ms_qty++;
+        }
         if (ms_qty > I2C_WAIT_BUSY_TO_MS)
         {
             return I2C_WAIT_BUSY_TO;
@@ -374,10 +385,13 @@ static i2c_error_t i2c_try_execute(void)
     i2c_ctx.i2c->inst->CR1 |= I2C_CR1_START;
 
     ms_qty = 0;
-    while (i2c_ctx.state != I2C_FINISHED)
-    {
-        i2c_ctx.i2c->delay_ms(1);
-        ms_qty++;
+    while (i2c_ctx.state != I2C_FINISHED || (i2c_ctx.i2c->inst->SR2 & I2C_SR2_BUSY))
+    {        
+        if (i2c_ctx.i2c->delay_ms != NULL)
+        {
+            i2c_ctx.i2c->delay_ms(1);
+            ms_qty++;
+        }
         if (ms_qty > I2C_WAIT_RX_TO_MS)
         {
             return I2C_RX_TO;
@@ -402,9 +416,7 @@ static i2c_error_t i2c_execute(void)
 
         if (err != I2C_OK)
         {
-            i2c_ctx.i2c->delay_ms(5);
             init(i2c_ctx.i2c);
-            i2c_ctx.i2c->delay_ms(1);
         }
         else
         {
@@ -430,6 +442,15 @@ i2c_error_t i2c_read(i2c_inst_s * i2c, uint8_t slave_address, uint32_t reg_addr,
 
     sync_object_release(i2c->sync_object);
 
+#if I2C_DEBUG
+    DBG_INFO("i2c_read:");
+    for (uint32_t i = 0; i < data_size; i++)
+    {
+        DBG_INFO(" %02X", data[i]);
+    }
+    DBG_INFO("\n");
+#endif
+
     return err;
 }
 
@@ -441,13 +462,22 @@ i2c_error_t i2c_write(i2c_inst_s * i2c, uint8_t slave_address, uint32_t reg_addr
     i2c_ctx.slave_address       = slave_address;
     i2c_ctx.reg_addr            = reg_addr;
     i2c_ctx.reg_addr_size       = reg_addr_size;
-    i2c_ctx.c_data                = data;
+    i2c_ctx.c_data              = data;
     i2c_ctx.data_size           = data_size;
     i2c_ctx.reading             = false;
 
     i2c_error_t err = i2c_execute();
 
     sync_object_release(i2c->sync_object);
+
+#if I2C_DEBUG
+    DBG_INFO("i2c_write:");
+    for (uint32_t i = 0; i < data_size; i++)
+    {
+        DBG_INFO(" %02X", data[i]);
+    }
+    DBG_INFO("\n");
+#endif
 
     return err;
 }

@@ -232,11 +232,13 @@ static void i2c_init_ll(void)
     NVIC_EnableIRQ(I2C1_EV_IRQn);
     NVIC_EnableIRQ(I2C1_ER_IRQn);
     NVIC_SetPriorityGrouping(3);
+    NVIC_SetPriority(I2C1_EV_IRQn, 1);
+    NVIC_SetPriority(I2C1_ER_IRQn, 0);
 }
 
 static void systick_init_ll(uint32_t ticks)
 {
-    #if 1
+    #if 0
     (void)ticks;
     #else
     // Disable SysTick timer
