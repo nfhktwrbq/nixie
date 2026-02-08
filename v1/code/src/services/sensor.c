@@ -77,9 +77,9 @@ static int8_t get_temperature(uint32_t period, struct bme280_dev *dev)
 /* Task to be created. */
 static void bmp280_task(void * params)
 {
-    app_sens_cfg_s * cfg = params;
+    sens_cfg_s * cfg = params;
 
-    i2c_master_init(cfg->i2c);
+    cfg->i2c->delay_ms = vTaskDelay;
 
     struct bme280_dev dev = 
     {
@@ -126,19 +126,19 @@ static void bmp280_task(void * params)
         
         DBG_INFO("res = %u\n", rslt);
         
-        vTaskDelay(cfg->meas_period_ms);
+        vTaskDelay(cfg->settings->meas_period_ms);
     }
 }
 
 
 
 /* Function that creates a task. */
-void sensor_service(app_sens_cfg_s * cfg)
+void sensor_service(sens_cfg_s * cfg)
 {
     BaseType_t xReturned;
     TaskHandle_t xHandle = NULL;
-    app_sens_cfg_s * config = pvPortMalloc(sizeof(app_sens_cfg_s));
-    *config = *cfg;
+    sens_cfg_s * config = pvPortMalloc(sizeof(sens_cfg_s));
+    *config = *cfg;    
 
     /* Create the task, storing the handle. */
     xReturned = xTaskCreate(

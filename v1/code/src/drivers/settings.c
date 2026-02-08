@@ -1,6 +1,7 @@
 #include "settings.h"
 
 #include "software/crc.h"
+#include "drivers/settings.h"
 #include "debug.h"
 
 #include <stddef.h>
@@ -16,18 +17,19 @@ typedef struct settings_srv_s
 
 static const settings_s default_settings = 
 {
-    .meas_period_ms = 3000,
+    .meas_period_ms     = 3000,
+    .relax_period_s     = 120,
+    .show_date_period_s = 0,
 };
 
 void settings_init(settings_iface_s i)
 {
     eeprom = (eeprom_s)i;
-    eeprom_init(&eeprom);
 }
 
-bool settings_restore(settings_s * settings)
+settings_restore_state_e settings_restore(settings_s * settings)
 {
-    bool result = false;
+    settings_restore_state_e result = SETTINGS_RESTORE_FAILED_DEFAULT_LOADED;
 
     settings_srv_s s_srv = {0};
 
@@ -42,7 +44,7 @@ bool settings_restore(settings_s * settings)
     else
     {
         memcpy(settings, &s_srv.settings, sizeof(settings_s)); 
-        result = true;
+        result = SETTINGS_RESTORE_OK;
         DBG_INFO("Settings restore OK\n");
     }
 

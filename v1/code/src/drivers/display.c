@@ -1,6 +1,7 @@
 #include "display.h"
 
 #include "modules/gpio.h"
+#include "debug.h"
 
 #include "macro.h"
 
@@ -38,16 +39,16 @@
 #define PIN_DIGIT_DOT   (13)
 
 #define GPIO_ANODE_0    GPIOB
-#define PIN_ANODE_0     (12)
+#define PIN_ANODE_0     (2)
 
 #define GPIO_ANODE_1    GPIOB
-#define PIN_ANODE_1     (11)
+#define PIN_ANODE_1     (10)
 
 #define GPIO_ANODE_2    GPIOB
-#define PIN_ANODE_2     (10)
+#define PIN_ANODE_2     (11)
 
 #define GPIO_ANODE_3    GPIOB
-#define PIN_ANODE_3     (2)
+#define PIN_ANODE_3     (12)
 
 #define GPIO_DIGIT_S    GPIOB
 #define PIN_DIGIT_S     (1)
@@ -164,6 +165,14 @@ void display_turn_off(void)
     }
 }
 
+void display_turn_digits_off(void)
+{
+    for (uint32_t i = 0; i < ARRAY_ITEMS_QTY(cathodes); i++)
+    {
+        gpio_reset(cathodes[i].gpio, cathodes[i].pin);
+    }
+}
+
 void display_digit_switch(void)
 {
     gpio_reset(anodes[ctx.cur_anode_num].gpio, anodes[ctx.cur_anode_num].pin);
@@ -218,13 +227,14 @@ void display_dot_set(uint32_t pos, bool dot)
 
 void display_second_set(bool en)
 {
+    DBG_INFO("Sec set %u\n", en);
     if (en)
     { 
         gpio_set(GPIO_DIGIT_S, PIN_DIGIT_S);
     }
     else
     {
-        gpio_set(GPIO_DIGIT_S, PIN_DIGIT_S);
+        gpio_reset(GPIO_DIGIT_S, PIN_DIGIT_S);
     }
 }
 

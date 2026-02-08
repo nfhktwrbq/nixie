@@ -64,6 +64,7 @@ HDRS += -I../src/thirdparty/free_rtos/
 HDRS += -I../src/thirdparty/free_rtos/include
 HDRS += -I../src/thirdparty/free_rtos/portable/GCC/ARM_CM3
 
+SRCS += ../src/app/nixie.c 
 SRCS += ../src/drivers/buttons.c 
 SRCS += ../src/drivers/display.c 
 SRCS += ../src/drivers/settings.c 

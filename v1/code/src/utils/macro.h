@@ -18,3 +18,5 @@
 #define ARRAY_ITEMS_QTY(x) (sizeof(x)/sizeof(x[0]))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) > (b) ? (b) : (a))
+#define DIG_TO_CHAR(x)  (((x) % 10) + '0')
+#define DIG_TO_CHAR_EMPTY_ZERO(x)  (((x) == 0 ? -1 : (((x) % 10)) + '0'))

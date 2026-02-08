@@ -375,7 +375,7 @@ void TIM2_IRQHandler(void)
         TIM2->SR &= ~TIM_SR_UIF;
         if (decimation % 2) 
         {
-            display_turn_off();
+            display_turn_digits_off();
         }
         else
         {

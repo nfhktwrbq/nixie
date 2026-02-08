@@ -80,7 +80,13 @@
         "string": "c",
         "datetime.h": "c",
         "random": "c",
-        "display.h": "c"
+        "display.h": "c",
+        "string.h": "c",
+        "stdint-gcc.h": "c",
+        "time.h": "c",
+        "stddef.h": "c",
+        "fstream": "c",
+        "sstream": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false,
 }

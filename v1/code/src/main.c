@@ -1,30 +1,39 @@
 
 #include "sys_init.h"
+#include "app/nixie.h"
 #include "services/sensor.h"
 #include "services/keyboard.h"
 #include "debug.h"
 #include "drivers/buttons.h"
 #include "modules/rtc.h"
 #include "drivers/display.h"
-#include "drivers/settings.h"
 #include "datetime.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+static settings_s settings;
 static i2c_inst_s i2c_inst = 
 {
     .inst = I2C1,
     .inited = false,
 };
 
-#define EEPROM_ARRD     (0x57)
 
-static settings_s settings;
-static uint32_t prev_timestamp = 0;
-static uint32_t ddd = 0;
+void vApplicationStackOverflowHook( TaskHandle_t xTask,
+                                        char * pcTaskName )
+{
+    (void)xTask;
+    (void)pcTaskName;
+}
+
+
 void vApplicationIdleHook(void)
 {
+#if 0
+    static uint32_t prev_timestamp = 0;
+    static uint32_t ddd = 0;
+
     uint32_t timestamp = rtc_buferized_cnt_get();
     if (prev_timestamp != timestamp)
     {
@@ -68,6 +77,7 @@ void vApplicationIdleHook(void)
             }
         }
     }
+#endif
 
 }
 
@@ -75,20 +85,27 @@ void vApplicationIdleHook(void)
 
 int main(void)
 {
-    system_init();    
+    system_init(); 
+    
+    (void) i2c_master_init(&i2c_inst);
 
     DBG_INFO("Hello\n");   
     
-    
     settings_init((settings_iface_s){
         .i2c = &i2c_inst,
-        .address = EEPROM_ARRD,
-        .reg_addr_size = 1,
+        .address = SETTINGS_EEPROM_ADDR,
+        .reg_addr_size = SETTINGS_EEPROM_REG_ADDR_SIZE,
     });
-    (void)settings_restore(&settings);
+
+    if (settings_restore(&settings) == SETTINGS_RESTORE_FAILED_DEFAULT_LOADED)
+    {
+        settings_save(&settings);
+    }
 
     keyboard_service();
-    sensor_service(&(app_sens_cfg_s){ .i2c = &i2c_inst, .meas_period_ms = settings.meas_period_ms });
+    sensor_service(&(sens_cfg_s){ .i2c = &i2c_inst, .settings = &settings });
+
+    app_nixie(&(nixie_cfg_s){ .i2c = &i2c_inst, .settings = &settings });
 
     vTaskStartScheduler();
 
