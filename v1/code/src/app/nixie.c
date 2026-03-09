@@ -1,71 +1,62 @@
 #include "nixie.h"
 
+#include "app_display.h"
+#include "nixie_menu.h"
+
 #include "drivers/display.h"
 #include "software/datetime.h"
 #include "utils/macro.h"
 #include "modules/rtc.h"
+#include "drivers/buttons.h"
+#include "services/keyboard.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
 
-static void nixie_relax(void)
+void timedate_show(nixie_cfg_s * cfg)
 {
+    static datetime_s datetime;
+    static uint32_t timestamp = 0;
 
-    for (char c = '0'; c <= '9'; c++)
+    uint32_t cur_timestamp = rtc_buferized_cnt_get();
+    if (cur_timestamp != timestamp)
     {
-        for (uint32_t pos = 0; pos < DISPLAY_WIDTH; pos++)
+        timestamp = cur_timestamp;
+        datetime_from_timestamp(timestamp, &datetime);
+        DBG_INFO("%02u:%02u:%02u %02u.%02u.%04u (%u)\n", 
+            datetime.hour, 
+            datetime.minute,
+            datetime.second,
+            datetime.day,
+            datetime.month,
+            datetime.year,
+            timestamp
+        );
+
+        display_second_set(true);
+        app_display_time_set(&datetime);
+        vTaskDelay(pdMS_TO_TICKS(500));
+        display_second_set(false);
+
+        // app_display_relax();
+        if ((timestamp % cfg->settings->relax_period_s) == 0)
         {
-            display_second_set(pos % 2);
-            display_char_set(c, pos, c % 2, DISPLAY_NO_BLINK);
-            vTaskDelay(pdMS_TO_TICKS(10));
+            app_display_relax();
+        }
+
+        if (cfg->settings->show_date_period_s && 
+            ((timestamp % cfg->settings->show_date_period_s) == 0))
+        {
+            display_second_set(true);
+            app_display_month_day_set(&datetime);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            display_second_set(false);              
+            app_display_year_set(&datetime);
+            vTaskDelay(pdMS_TO_TICKS(2000));
         }
     }
-}
-
-static void display_time_set(datetime_s * datetime)
-{
-    char time_str[4];
-    
-    time_str[0] = DIG_TO_CHAR(datetime->minute % 10);
-    time_str[1] = DIG_TO_CHAR(datetime->minute / 10);
-    time_str[2] = DIG_TO_CHAR(datetime->hour % 10);
-    time_str[3] = DIG_TO_CHAR_EMPTY_ZERO(datetime->hour / 10);
-
-    for (uint32_t pos = 0; pos < MIN(DISPLAY_WIDTH, ARRAY_ITEMS_QTY(time_str)); pos++)
-    {
-        display_char_set(time_str[pos], pos, DISPLAY_NO_DOT, DISPLAY_NO_BLINK);
-    }
-}
-
-static void display_month_day_set(datetime_s * datetime)
-{
-    char time_str[4];
-
-    time_str[0] = DIG_TO_CHAR(datetime->month % 10);
-    time_str[1] = DIG_TO_CHAR_EMPTY_ZERO(datetime->month / 10);
-    time_str[2] = DIG_TO_CHAR(datetime->day % 10);
-    time_str[3] = DIG_TO_CHAR_EMPTY_ZERO(datetime->day / 10);
-
-    for (uint32_t pos = 0; pos < MIN(DISPLAY_WIDTH, ARRAY_ITEMS_QTY(time_str)); pos++)
-    {
-        display_char_set(time_str[pos], pos, DISPLAY_NO_DOT, DISPLAY_NO_BLINK);
-    }
-}
-
-static void display_year_set(datetime_s * datetime)
-{
-    char time_str[4];
-
-    time_str[0] = DIG_TO_CHAR(datetime->year / 1 % 10);
-    time_str[1] = DIG_TO_CHAR(datetime->year / 10 % 10);
-    time_str[2] = DIG_TO_CHAR(datetime->year / 100 % 10);
-    time_str[3] = DIG_TO_CHAR(datetime->year / 1000 % 10);
-
-    for (uint32_t pos = 0; pos < MIN(DISPLAY_WIDTH, ARRAY_ITEMS_QTY(time_str)); pos++)
-    {
-        display_char_set(time_str[pos], pos, DISPLAY_NO_DOT, DISPLAY_NO_BLINK);
-    }
+    vTaskDelay(1);
 }
 
 void nixie_task(void * args)
@@ -74,48 +65,29 @@ void nixie_task(void * args)
 
     cfg->i2c->delay_ms = vTaskDelay;
 
-    datetime_s datetime;
-    uint32_t timestamp = 0;
+    buttons_e btn;
+
+    bool is_in_menu = false;
+
+    nixie_menu_init();
 
     for (;;)
-    {
-        uint32_t cur_timestamp = rtc_buferized_cnt_get();
-        if (cur_timestamp != timestamp)
+    {        
+        if (is_in_menu)
         {
-            timestamp = cur_timestamp;
-            datetime_from_timestamp(timestamp, &datetime);
-            DBG_INFO("%02u:%02u:%02u %02u.%02u.%04u (%u)\n", 
-                datetime.hour, 
-                datetime.minute,
-                datetime.second,
-                datetime.day,
-                datetime.month,
-                datetime.year,
-                timestamp
-            );
+            nixie_menu_handle();
+            is_in_menu = false;
+        }
+        else
+        {
+            bool btn_pressed = (keyboard_key_is_pressed(&btn)); 
 
-            display_second_set(true);
-            display_time_set(&datetime);
-            vTaskDelay(pdMS_TO_TICKS(500));
-            display_second_set(false);
-
-            if ((timestamp % cfg->settings->relax_period_s) == 0)
+            timedate_show(cfg);
+            if (btn_pressed && btn == BUTTON_LEFT)
             {
-                nixie_relax();
-            }
-
-            if (cfg->settings->show_date_period_s && 
-                ((timestamp % cfg->settings->show_date_period_s) == 0))
-            {
-                display_second_set(true);
-                display_month_day_set(&datetime);
-                vTaskDelay(pdMS_TO_TICKS(2000));
-                display_second_set(false);              
-                display_year_set(&datetime);
-                vTaskDelay(pdMS_TO_TICKS(2000));
+                is_in_menu = true;
             }
         }
-        vTaskDelay(1);
     }
 }
 

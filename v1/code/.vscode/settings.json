@@ -86,7 +86,13 @@
         "time.h": "c",
         "stddef.h": "c",
         "fstream": "c",
-        "sstream": "c"
+        "sstream": "c",
+        "nixie_menu.h": "c",
+        "stdbool.h": "c",
+        "limits": "c",
+        "semaphore": "c",
+        "freertos.h": "c",
+        "types.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false,
 }

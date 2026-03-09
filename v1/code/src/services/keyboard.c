@@ -11,6 +11,14 @@
 #define PRESS_CHECK_TIMEOUT_STICKS  (10u)
 #define LONG_PRESS_TIMEOUT_STICKS   (2000u)
 
+typedef struct key_state_s
+{
+    buttons_e button_id;
+    bool pressed;
+    bool released;
+    bool long_pressed;
+} key_state_s;
+
 static TaskHandle_t keyboard_th = NULL;
 
 static key_state_s k_state;
@@ -70,7 +78,7 @@ TaskHandle_t keyboard_task_handle_get(void)
     return keyboard_th;
 }
 
-bool keyboard_key_is_pressed(buttons_e * key, bool reset_state)
+bool keyboard_key_is_pressed(buttons_e * key)
 {
     bool pressed = false;
 
@@ -79,13 +87,15 @@ bool keyboard_key_is_pressed(buttons_e * key, bool reset_state)
         pressed = true;
         *key = k_state.button_id;
     
-        if (reset_state)
-        {
-            k_state.pressed = false;
-        }
+        k_state.pressed = false;
     }
 
     return pressed;
+}
+
+bool keyboard_key_is_released(void)
+{
+    return k_state.released;
 }
 
 /* Function that creates a task. */

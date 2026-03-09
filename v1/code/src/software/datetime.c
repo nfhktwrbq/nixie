@@ -1,5 +1,7 @@
 #include "datetime.h"
 
+#include "utils/macro.h"
+
 #include <stdbool.h>
 
 // Функция проверки високосного года
@@ -21,6 +23,28 @@ static const uint32_t SECONDS_PER_MINUTE = 60;
 static const uint32_t SECONDS_PER_HOUR = 3600;
 static const uint32_t SECONDS_PER_DAY = 86400;
 
+bool datetime_is_leap_year(uint16_t year)
+{
+    return is_leap_year(year);
+}
+
+uint32_t datetime_days_in_month_get(uint32_t month, uint16_t year)
+{
+    uint32_t res = 0;
+    if (month < ARRAY_ITEMS_QTY(days_in_month))
+    {
+        if (is_leap_year(year))
+        {
+            res = days_in_month_leap[month];
+        }
+        else
+        {
+            res = days_in_month[month];
+        }
+    }
+    return res;
+}
+
 void datetime_time_from_timestamp(uint32_t timestamp, time_s *time)
 { 
     uint32_t time_remaining = timestamp % SECONDS_PER_DAY;
@@ -29,7 +53,6 @@ void datetime_time_from_timestamp(uint32_t timestamp, time_s *time)
     time->minute = time_remaining / SECONDS_PER_MINUTE;
     time->second = time_remaining % SECONDS_PER_MINUTE;
 }
-
 
 // Прямая функция (из предыдущего ответа)
 void datetime_from_timestamp(uint32_t timestamp, datetime_s *datetime)
@@ -72,7 +95,7 @@ void datetime_from_timestamp(uint32_t timestamp, datetime_s *datetime)
 uint32_t datetime_to_timestamp(const datetime_s *datetime) 
 {    
     // Базовая дата: 01.01.2025 00:00:00
-    const uint16_t BASE_YEAR = 2025;
+    const uint16_t BASE_YEAR = DT_MIN_BASE_YEAS;
     
     // Проверка валидности входных данных
     if (datetime->year < BASE_YEAR || 

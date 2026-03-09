@@ -7,18 +7,6 @@
 
 static volatile uint32_t rtc_cnt_bufferized;
 
-void rtc_calibration_set(uint32_t cal)
-{
-    uint32_t bkp_rtcct = BKP->RTCCR;
-    const uint32_t cur_cal = (bkp_rtcct & BKP_RTCCR_CAL_Msk) >> BKP_RTCCR_CAL_Pos;
-    if (cur_cal != cal)
-    {
-        bkp_rtcct &= ~BKP_RTCCR_CAL_Msk;
-        bkp_rtcct |= (cal << BKP_RTCCR_CAL_Pos) & BKP_RTCCR_CAL_Msk;
-        BKP->RTCCR = bkp_rtcct;
-    }
-}
-
 void rtc_init(void) 
 {
     // enable access to the Backup registers and RTC
@@ -53,6 +41,30 @@ void rtc_init(void)
 
     // Wait for last write operation to complete
     while (!(RTC->CRL & RTC_CRL_RTOFF)); // Wait for RTOFF bit to set
+}
+
+uint32_t rtc_calibration_get(void)
+{
+    uint32_t bkp_rtcct = BKP->RTCCR;
+    return (bkp_rtcct & BKP_RTCCR_CAL_Msk) >> BKP_RTCCR_CAL_Pos;
+}
+
+void rtc_calibration_set(uint32_t cal)
+{
+    const uint32_t max = BKP_RTCCR_CAL_Msk >> BKP_RTCCR_CAL_Pos;
+    if (cal > max)
+    {
+        cal = max;
+    }
+
+    uint32_t bkp_rtcct = BKP->RTCCR;
+    const uint32_t cur_cal = (bkp_rtcct & BKP_RTCCR_CAL_Msk) >> BKP_RTCCR_CAL_Pos;
+    if (cur_cal != cal)
+    {
+        bkp_rtcct &= ~BKP_RTCCR_CAL_Msk;
+        bkp_rtcct |= (cal << BKP_RTCCR_CAL_Pos) & BKP_RTCCR_CAL_Msk;
+        BKP->RTCCR = bkp_rtcct;
+    }
 }
 
 void rtc_datetime_set(uint32_t timestamp) 

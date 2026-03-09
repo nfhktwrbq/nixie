@@ -1,6 +1,9 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#define DT_MIN_BASE_YEAS    (2025u)
 
 typedef struct datetime_s
 {
@@ -19,6 +22,8 @@ typedef struct time_s
     uint8_t second;
 } time_s;
 
+bool datetime_is_leap_year(uint16_t year);
+uint32_t datetime_days_in_month_get(uint32_t month, uint16_t year);
 void datetime_time_from_timestamp(uint32_t timestamp, time_s *time);
 void datetime_from_timestamp(uint32_t timestamp, datetime_s *datetime);
 uint32_t datetime_to_timestamp(const datetime_s *datetime);

@@ -7,15 +7,8 @@
 
 #include <stdbool.h>
 
-typedef struct key_state_s
-{
-    buttons_e button_id;
-    bool pressed;
-    bool released;
-    bool long_pressed;
-} key_state_s;
-
 
 TaskHandle_t keyboard_task_handle_get(void);
 void keyboard_service(void);
-bool keyboard_key_is_pressed(buttons_e * key, bool reset_state);
+bool keyboard_key_is_pressed(buttons_e * key);
+bool keyboard_key_is_released(void);

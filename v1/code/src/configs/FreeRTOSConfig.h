@@ -56,7 +56,7 @@
 #define configUSE_16_BIT_TICKS		0
 #define configIDLE_SHOULD_YIELD		1
 #define configUSE_MUTEXES           1
-#define configCHECK_FOR_STACK_OVERFLOW      0
+#define configCHECK_FOR_STACK_OVERFLOW      2
 
 
 /* Co-routine definitions. */

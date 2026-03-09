@@ -5,6 +5,8 @@
 
 #include "macro.h"
 
+#include <string.h>
+
 #define GPIO_DIGIT_0    GPIOB
 #define PIN_DIGIT_0     (9)
 
@@ -111,11 +113,13 @@ static output_s cathodes[] =
 #define MAX_TEXT_LEN    (8 + 1)
 
 #define ANODES_QTY ARRAY_ITEMS_QTY(anodes)
+#define BLINK_PERIOD_SW_QTY         (128)
 
 static struct ctx
 {
     uint32_t cur_anode_num;
     uint8_t digits[ANODES_QTY];
+    uint32_t blink_cnt;
     bool dots[ANODES_QTY];
     bool blink[ANODES_QTY];
 } ctx;
@@ -177,13 +181,38 @@ void display_digit_switch(void)
 {
     gpio_reset(anodes[ctx.cur_anode_num].gpio, anodes[ctx.cur_anode_num].pin);
     ctx.cur_anode_num = (ctx.cur_anode_num + 1) % ANODES_QTY;
-    if (digit_set(ctx.digits[ctx.cur_anode_num], ctx.dots[ctx.cur_anode_num]))
+    
+    if (ctx.blink[ctx.cur_anode_num])
     {
-        gpio_set(anodes[ctx.cur_anode_num].gpio, anodes[ctx.cur_anode_num].pin);
+        if (ctx.blink_cnt <= (BLINK_PERIOD_SW_QTY >> 1))
+        {
+            if (digit_set(ctx.digits[ctx.cur_anode_num], ctx.dots[ctx.cur_anode_num]))
+            {
+                gpio_set(anodes[ctx.cur_anode_num].gpio, anodes[ctx.cur_anode_num].pin);
+            }
+        }
+        else
+        {
+            gpio_set(anodes[ctx.cur_anode_num].gpio, anodes[ctx.cur_anode_num].pin);
+        }
+        ctx.blink_cnt++;
+        if (ctx.blink_cnt > BLINK_PERIOD_SW_QTY)
+        {
+            ctx.blink_cnt = 0;
+        }
     }
+    else
+    {
+        if (digit_set(ctx.digits[ctx.cur_anode_num], ctx.dots[ctx.cur_anode_num]))
+        {
+            gpio_set(anodes[ctx.cur_anode_num].gpio, anodes[ctx.cur_anode_num].pin);
+        }        
+    }
+
+    
 }
 
-void display_char_set(char c, uint32_t pos, bool dot, bool blink)
+void display_char_set(char c, uint32_t pos)
 {
     if (pos < ANODES_QTY)
     {
@@ -195,8 +224,32 @@ void display_char_set(char c, uint32_t pos, bool dot, bool blink)
         {
             ctx.digits[pos] = EMPTY;
         }
+    }
+}
+
+void display_char_set_ex(char c, uint32_t pos, bool dot, bool blink)
+{
+    display_char_set(c, pos);
+    if (pos < ANODES_QTY)
+    {        
         ctx.dots[pos] = dot;
+        display_blink_set(pos, blink);
+    }
+}
+
+void display_blink_set(uint32_t pos, bool blink)
+{
+    if (pos < ANODES_QTY)
+    {
         ctx.blink[pos] = blink;
+    }
+}
+
+void display_blink_msk_set(uint32_t msk)
+{
+    for (uint32_t i = 0; i < ANODES_QTY; i++)
+    {
+        display_blink_set(i, (bool)(msk & (1 << i)));
     }
 }
 
@@ -225,6 +278,21 @@ void display_dot_set(uint32_t pos, bool dot)
     }
 }
 
+void display_dot_msk_set(uint32_t msk)
+{
+    for (uint32_t i = 0; i < ANODES_QTY; i++)
+    {
+        if (msk & (1 << i))
+        {
+            ctx.dots[i] = true;
+        }
+        else
+        {
+            ctx.dots[i] = false;
+        }
+    }
+}
+
 void display_second_set(bool en)
 {
     DBG_INFO("Sec set %u\n", en);
@@ -247,5 +315,21 @@ void display_test_ll(void)
     }
 }
 
+void display_print(const char * str)
+{
+    display_clear();
+    for (uint32_t i = 0; i < MIN(ANODES_QTY, strlen(str)); i++)
+    {
+        display_char_set_ex(str[i], i, DISPLAY_NO_DOT, DISPLAY_NO_BLINK);
+    }
+}
+
+void display_clear(void)
+{
+    for (uint32_t i = 0; i < ANODES_QTY; i++)
+    {
+        display_char_set_ex(' ', i, DISPLAY_NO_DOT, DISPLAY_NO_BLINK);
+    }
+}
 
 

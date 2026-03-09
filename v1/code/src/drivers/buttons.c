@@ -20,12 +20,12 @@ button_cfg_s buttons_cfg[] =
         .gpio     = GPIOA,
     },
     [BUTTON_UP]    = {
-        .pin_num  = 1,
+        .pin_num  = 2,
         .exti_imr = EXTI_IMR_MR1,
         .gpio     = GPIOA,
     },
     [BUTTON_DOWN]  = {
-        .pin_num  = 2,
+        .pin_num  = 1,
         .exti_imr = EXTI_IMR_MR2,
         .gpio     = GPIOA,
     },
